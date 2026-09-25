@@ -523,7 +523,8 @@
           (adj[d.name] || []).forEach(function (n) {
             if (!self.stpOn(n.o, vid) || dist[n.o.name] === Infinity) return;
             var c = dist[n.o.name] + portCost(n.mi);
-            var key = [c, bid(n.o), n.oi.name];
+            /* à coût égal : BID du voisin, puis son Port ID (128.numéro du port, comme show spanning-tree) */
+            var key = [c, bid(n.o), n.o.ifaces.indexOf(n.oi)];
             if (!best || c < best.k[0] || (c === best.k[0] && (cmpBid(key[1], best.k[1]) < 0 || (cmpBid(key[1], best.k[1]) === 0 && key[2] < best.k[2])))) best = { k: key, n: n };
           });
           if (best) rootPort[d.name] = best.n.mi.name;
@@ -538,7 +539,7 @@
           var aDes;
           if (aRoot) aDes = false; else if (bRoot) aDes = true;
           else if (da !== db) aDes = da < db;
-          else { var c = cmpBid(bid(A), bid(B)); aDes = c < 0 || (c === 0 && e.ai.name < e.bi.name); }
+          else { var c = cmpBid(bid(A), bid(B)); aDes = c < 0 || (c === 0 && A.ifaces.indexOf(e.ai) < B.ifaces.indexOf(e.bi)); }
           info.ports[ka] = aRoot ? 'Root' : aDes ? 'Desg' : 'Altn';
           info.ports[kb] = bRoot ? 'Root' : !aDes ? 'Desg' : 'Altn';
           if (info.ports[ka] === 'Altn') res.blocked[ka] = vid;
