@@ -523,14 +523,14 @@
         '255K bytes of non-volatile configuration memory.', '249856K bytes of ATA System CompactFlash 0 (Read/Write)', '', '', 'Press RETURN to get started!', '', ''];
     }
     return ['C2960 Boot Loader (C2960-HBOOT-M) Version 12.2(25r)FX, RELEASE SOFTWARE (fc4)', 'Cisco WS-C2960-24TT (RC32300) processor (revision C0) with 21039K bytes of memory.',
-      '2960-24TT starting...', 'Base ethernet MAC Address: ' + N.macPT(d.ifaces[0] ? d.ifaces[0].mac : '0000.0000.0000'), 'Xmodem file system is available.',
+      d.model + ' starting...', 'Base ethernet MAC Address: ' + N.macPT(d.ifaces[0] ? d.ifaces[0].mac : '0000.0000.0000'), 'Xmodem file system is available.',
       'Initializing Flash...', 'flashfs[0]: 1 files, 0 directories', 'flashfs[0]: 0 orphaned files, 0 orphaned directories', 'flashfs[0]: Total bytes: 64016384',
       'flashfs[0]: Bytes used: 4414921', 'flashfs[0]: Bytes available: 59601463', 'flashfs[0]: flashfs fsck took 1 seconds.', '...done Initializing Flash.', '',
       'Loading "flash:/c2960-lanbasek9-mz.150-2.SE4.bin"...', '########################################################################## [OK]', '',
       '              Restricted Rights Legend', '', 'Use, duplication, or disclosure by the Government is', 'subject to restrictions as set forth in subparagraph',
       '(c) of the Commercial Computer Software - Restricted', 'Rights clause at FAR sec. 52.227-19 and subparagraph', '(c) (1) (ii) of the Rights in Technical Data and Computer',
       'Software clause at DFARS sec. 252.227-7013.', '', 'cisco Systems, Inc.', '170 West Tasman Drive', 'San Jose, California 95134-1706', '', '',
-      'Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version ' + root.IOS.iosVersion(d) + ', RELEASE SOFTWARE (fc1)', 'Technical Support: http://www.cisco.com/techsupport',
+      'Cisco IOS Software, ' + (d.cat === 'l3switch' ? '[Denali], Catalyst L3 Switch Software (CAT3K_CAA-UNIVERSALK9-M)' : 'C2960 Software (C2960-LANBASEK9-M)') + ', Version ' + root.IOS.iosVersion(d) + ', RELEASE SOFTWARE (fc1)', 'Technical Support: http://www.cisco.com/techsupport',
       'Copyright (c) 1986-2013 by Cisco Systems, Inc.', 'Compiled Wed 26-Jun-13 02:49 by prod_rel_team', '', '', 'Press RETURN to get started!', '', ''];
   }
 
