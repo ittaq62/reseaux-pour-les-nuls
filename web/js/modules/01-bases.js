@@ -131,6 +131,18 @@
     { id: 'b12', type: 'qcm', q: 'Avec la <b>commutation de paquets</b>, que contient chaque paquet pour pouvoir être acheminé indépendamment ?',
       choices: ['Uniquement les données', 'Les adresses source et destination', 'Un jeton', 'Le numéro de circuit physique réservé'], good: 1,
       hints: ['Chaque paquet doit pouvoir trouver seul son chemin.'],
-      explain: 'Chaque paquet (datagramme) porte les <b>adresses source et destination</b> : c’est le principe d’IP, qui traite chaque datagramme indépendamment.' }
+      explain: 'Chaque paquet (datagramme) porte les <b>adresses source et destination</b> : c’est le principe d’IP, qui traite chaque datagramme indépendamment.' },
+    { id: 'b-lab', lvl: 1, type: 'pt', file: 'Premier-contact.pkt', noAutoCable: true, tag: 'Découverte de Packet Tracer',
+      q: '<b>Premier contact avec Packet Tracer.</b> Deux PC sont posés sur l’espace de travail, sans câble. Ton but : les faire communiquer (une communication <b>unicast</b> : un émetteur, un récepteur).<br>1) Relie-les avec le câble <b>Copper Cross-Over</b> (croisé : entre deux PC, on croise, tu comprendras pourquoi au module 3).<br>2) Donne-leur une adresse : PC0 = <code>10.0.0.1</code>, PC1 = <code>10.0.0.2</code>, masque <code>255.0.0.0</code>.<br>3) Depuis PC0, tape <code>ping 10.0.0.2</code> dans la Command Prompt.',
+      build: function () { return LAB.make({ devices: [['PC0', 'PC-PT', 260, 200], ['PC1', 'PC-PT', 680, 200]], notes: [[240, 330, 'PC0 = 10.0.0.1 / 255.0.0.0          PC1 = 10.0.0.2 / 255.0.0.0']] }); },
+      tasks: [
+        { label: 'PC0 et PC1 sont reliés par un câble croisé', check: function (n) { return LAB.linked(n, 'PC0', 'PC1', 'cross'); } },
+        { label: 'PC0 a l’adresse 10.0.0.1 / 255.0.0.0', check: function (n) { return LAB.hostIs(n, 'PC0', '10.0.0.1', '255.0.0.0'); } },
+        { label: 'PC1 a l’adresse 10.0.0.2 / 255.0.0.0', check: function (n) { return LAB.hostIs(n, 'PC1', '10.0.0.2', '255.0.0.0'); } },
+        { label: 'PC0 joint PC1 (ping)', check: function (n) { return n.canPing('PC0', 'PC1'); } }
+      ],
+      hints: ['En bas à gauche : l’éclair orange <b>Connections</b>, puis l’icône <b>Copper Cross-Over</b> (trait noir en pointillés). Clique sur PC0 → FastEthernet0, puis sur PC1 → FastEthernet0.', 'Clique sur un PC → onglet <b>Desktop</b> → <b>IP Configuration</b> → Static : IPv4 Address et Subnet Mask (en cliquant dans le champ masque, PT propose 255.0.0.0 pour une adresse en 10.x : c’est bon).', 'Desktop → <b>Command Prompt</b> → <code>ping 10.0.0.2</code>. Le premier « Request timed out » est normal (le temps d’ARP).'],
+      solution: [{ link: ['PC0', 'FastEthernet0', 'PC1', 'FastEthernet0', 'cross'] }, { dev: 'PC0', host: { ip: '10.0.0.1', mask: '255.0.0.0' } }, { dev: 'PC1', host: { ip: '10.0.0.2', mask: '255.0.0.0' } }],
+      explain: 'Tu viens de faire le plus petit réseau possible : deux machines, un câble, un protocole commun (IP) et une communication unicast (le ping va d’un PC à l’autre). Tout le reste du module part de là.' }
   ]
 });
