@@ -1,0 +1,2 @@
+var H=require('./charge.js'); var n=H.net('EX-ROUTAGE-CORR'); var s=new H.IOS.Session(n,n.dev('LILLE')); s.mode='config';
+console.log(s.help('ip route ').join('\n')); console.log(s.help('ip route 1.1.1.0 ').join('\n')); console.log(s.help('ip route 1.1.1.0 255.255.255.0 ').join('\n')); console.log(s.help('interface ').join('\n')); s.mode='priv'; console.log(s.help('').slice(0,8).join('\n')); console.log(s.help('sh').join('\n'));
