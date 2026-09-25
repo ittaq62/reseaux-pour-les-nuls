@@ -1,6 +1,16 @@
 (function () {
   var USERS = ['prof@imt.local', 'quentin@imt.local', 'admin@imt.local'];
   function addr(s) { var m = /^\s*<?\s*([^<>\s]+@[^<>\s]+)\s*>?\s*$/.exec(s || ''); return m ? m[1].toLowerCase() : null; }
+  /* labo Email : client configuré (adresse, compte, serveurs entrant et sortant qui mènent à srvIp) */
+  function clientOk(n, pc, adr, user, pw, srvIp) {
+    var d = n.dev(pc), c = d.host.mail;
+    if (!c || String(c.addr).toLowerCase() !== adr || String(c.user).toLowerCase() !== user || c.pw !== pw) return false;
+    return [c.inSrv, c.outSrv].every(function (s) { var r = s ? n.dnsResolve(d, s) : null; return !!r && r.ok && r.ip === NET.ip2int(srvIp); });
+  }
+  function recu(n, pc, from) {
+    var c = n.dev(pc).host.mail;
+    return !!c && c.inbox.some(function (m) { return String(m.from).toLowerCase() === from; });
+  }
   /* Session SMTP par telnet (RFC 5321) */
   function smtpScript(st, line) {
     var l = line.replace(/\s+$/, '');
@@ -215,7 +225,39 @@ QUIT
       testLines: ['telnet pop.imt.local 110', 'USER quentin', 'PASS imt2026', 'LIST', 'RETR 1', 'QUIT'],
       hints: ['<code>telnet pop.imt.local 110</code>.', '<code>USER quentin</code> puis <code>PASS imt2026</code>.', '<code>LIST</code> pour voir les messages, <code>RETR 1</code> pour lire le premier, <code>QUIT</code>.'],
       answerHtml: '<pre>telnet pop.imt.local 110\nUSER quentin\nPASS imt2026\nLIST\nRETR 1\nQUIT</pre>',
-      explain: 'POP3 répond par <code>+OK</code> ou <code>-ERR</code>. Les messages marqués par DELE ne sont supprimés qu’au QUIT.' }
+      explain: 'POP3 répond par <code>+OK</code> ou <code>-ERR</code>. Les messages marqués par DELE ne sont supprimés qu’au QUIT.' },
+    { id: 'm-lab', lvl: 4, type: 'pt', file: 'Messagerie-IMT.pkt', tag: 'Email',
+      q: '<b>La messagerie de l’IMT dans Packet Tracer.</b> Le réseau et le DNS sont prêts : <code>mail.imt.local</code> pointe déjà vers <b>SRV-MAIL (192.168.1.3)</b>.<br>1) Sur SRV-MAIL (Services → EMAIL), fixe le domaine <b>imt.local</b> et crée deux comptes : <b>etudiant</b> (mot de passe <code>etu123</code>) et <b>prof</b> (<code>prof123</code>).<br>2) Configure le client Email de <b>PC-ETU</b> (etudiant@imt.local) et de <b>PC-PROF</b> (prof@imt.local), avec <code>mail.imt.local</code> comme serveur entrant et sortant.<br>3) Depuis PC-ETU, envoie un message à prof@imt.local, puis relève la boîte de PC-PROF.',
+      build: function () {
+        var n = LAB.make({
+          devices: [['PC-ETU', 'PC-PT', 150, 110], ['PC-PROF', 'PC-PT', 150, 330], ['Switch0', '2960-24TT', 450, 220], ['SRV-DNS', 'Server-PT', 750, 110], ['SRV-MAIL', 'Server-PT', 750, 330]],
+          links: [['PC-ETU', 'FastEthernet0', 'Switch0', 'FastEthernet0/1', 'straight'], ['PC-PROF', 'FastEthernet0', 'Switch0', 'FastEthernet0/2', 'straight'], ['SRV-DNS', 'FastEthernet0', 'Switch0', 'FastEthernet0/10', 'straight'], ['SRV-MAIL', 'FastEthernet0', 'Switch0', 'FastEthernet0/11', 'straight']],
+          hosts: { 'PC-ETU': { ip: '192.168.1.20', mask: '255.255.255.0', dns: '192.168.1.2' }, 'PC-PROF': { ip: '192.168.1.21', mask: '255.255.255.0', dns: '192.168.1.2' }, 'SRV-DNS': { ip: '192.168.1.2', mask: '255.255.255.0', dns: '192.168.1.2' }, 'SRV-MAIL': { ip: '192.168.1.3', mask: '255.255.255.0', dns: '192.168.1.2' } },
+          notes: [[120, 450, 'Réseau 192.168.1.0/24 — DNS 192.168.1.2 — mail.imt.local = 192.168.1.3']]
+        });
+        n.dev('SRV-DNS').services.dns = { on: true, records: [{ name: 'mail.imt.local', type: 'A', value: '192.168.1.3' }] };
+        n.touch();
+        return n;
+      },
+      tasks: [
+        { label: 'SRV-MAIL gère le domaine imt.local', check: function (n) { return String(n.mailSvc(n.dev('SRV-MAIL')).domain).toLowerCase() === 'imt.local'; } },
+        { label: 'Comptes etudiant (etu123) et prof (prof123) créés sur SRV-MAIL', check: function (n) { var u = n.mailSvc(n.dev('SRV-MAIL')).users; return [['etudiant', 'etu123'], ['prof', 'prof123']].every(function (x) { return u.some(function (y) { return y.name.toLowerCase() === x[0] && y.pw === x[1]; }); }); } },
+        { label: 'Client Email de PC-ETU configuré (etudiant@imt.local, serveurs mail.imt.local)', check: function (n) { return clientOk(n, 'PC-ETU', 'etudiant@imt.local', 'etudiant', 'etu123', '192.168.1.3'); } },
+        { label: 'Client Email de PC-PROF configuré (prof@imt.local, serveurs mail.imt.local)', check: function (n) { return clientOk(n, 'PC-PROF', 'prof@imt.local', 'prof', 'prof123', '192.168.1.3'); } },
+        { label: 'PC-PROF a reçu le message de etudiant@imt.local', check: function (n) { return recu(n, 'PC-PROF', 'etudiant@imt.local'); } }
+      ],
+      hints: ['SRV-MAIL → Services → <b>EMAIL</b> : Domain Name <code>imt.local</code> → <b>Set</b>. Puis User <code>etudiant</code>, Password <code>etu123</code> → <b>+</b> ; même chose pour prof.', 'PC → Desktop → <b>Email</b> → Configure Mail : Your Name, Email Address, Incoming Mail Server et Outgoing Mail Server = <code>mail.imt.local</code>, User Name et Password du compte → Save.', 'PC-ETU : <b>Compose</b> → To : prof@imt.local → Send (« Send Success. »). PC-PROF : <b>Receive</b>.'],
+      solution: [
+        { text: 'SRV-MAIL → Services → EMAIL : Domain Name imt.local (Set), utilisateurs etudiant / etu123 et prof / prof123.',
+          fn: function (n) { var es = n.mailSvc(n.dev('SRV-MAIL')); es.domain = 'imt.local'; es.users = [{ name: 'etudiant', pw: 'etu123' }, { name: 'prof', pw: 'prof123' }]; } },
+        { text: 'PC-ETU → Email → Configure Mail : etudiant@imt.local, serveurs mail.imt.local, compte etudiant / etu123.',
+          fn: function (n) { var c = n.mailCfg(n.dev('PC-ETU')); c.name = 'Etudiant'; c.addr = 'etudiant@imt.local'; c.inSrv = c.outSrv = 'mail.imt.local'; c.user = 'etudiant'; c.pw = 'etu123'; } },
+        { text: 'PC-PROF → Email → Configure Mail : prof@imt.local, serveurs mail.imt.local, compte prof / prof123.',
+          fn: function (n) { var c = n.mailCfg(n.dev('PC-PROF')); c.name = 'Prof'; c.addr = 'prof@imt.local'; c.inSrv = c.outSrv = 'mail.imt.local'; c.user = 'prof'; c.pw = 'prof123'; } },
+        { text: 'PC-ETU : Compose → prof@imt.local → Send. PC-PROF : Receive.',
+          fn: function (n) { n.mailSend(n.dev('PC-ETU'), 'prof@imt.local', 'Compte rendu du TP', 'Bonjour, voici mon compte rendu.'); n.mailReceive(n.dev('PC-PROF')); } }
+      ],
+      explain: 'Le message part de PC-ETU en <b>SMTP</b> (TCP 25) vers mail.imt.local, qui le dépose dans la boîte de prof car le domaine imt.local est le sien. PC-PROF le relève en <b>POP3</b> (TCP 110) avec son compte. Le DNS sert à trouver mail.imt.local : sans lui, le client affiche « Unknown Mail Server. »' }
   ]
   });
 })();
