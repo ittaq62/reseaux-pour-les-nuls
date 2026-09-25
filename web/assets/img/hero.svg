@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200">
+  <g stroke="#6fd6f5" stroke-width="2" fill="none" opacity=".85">
+    <path d="M60 50 L150 100 L240 50"/><path d="M150 100 L150 165"/><path d="M60 50 L30 120"/><path d="M240 50 L270 120"/>
+    <path d="M150 165 L95 185 M150 165 L205 185" stroke-dasharray="4 3"/>
+  </g>
+  <g fill="#1bbb1b"><path d="M95 72l6 3-6 3z"/><path d="M205 72l-6 3 6 3z"/><path d="M147 122l3 6 3-6z"/></g>
+  <ellipse cx="150" cy="100" rx="26" ry="15" fill="#049fd9" stroke="#bfefff" stroke-width="2"/>
+  <path d="M136 99h28M158 94l6 5-6 5M142 104l-6-5 6-5" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <rect x="38" y="40" width="44" height="18" rx="3" fill="#0f3668" stroke="#6fd6f5" stroke-width="2"/>
+  <rect x="218" y="40" width="44" height="18" rx="3" fill="#0f3668" stroke="#6fd6f5" stroke-width="2"/>
+  <g fill="#6fd6f5"><rect x="43" y="45" width="4" height="3"/><rect x="50" y="45" width="4" height="3"/><rect x="57" y="45" width="4" height="3"/><rect x="64" y="45" width="4" height="3"/><rect x="223" y="45" width="4" height="3"/><rect x="230" y="45" width="4" height="3"/><rect x="237" y="45" width="4" height="3"/><rect x="244" y="45" width="4" height="3"/></g>
+  <g fill="#e9f0f8" stroke="#6fd6f5" stroke-width="1.5">
+    <rect x="16" y="120" width="28" height="20" rx="2"/><rect x="256" y="120" width="28" height="20" rx="2"/><rect x="136" y="160" width="28" height="18" rx="2"/>
+    <rect x="80" y="178" width="30" height="16" rx="2"/><rect x="190" y="178" width="30" height="16" rx="2"/>
+  </g>
+  <text x="150" y="30" text-anchor="middle" font-family="Consolas,monospace" font-size="13" fill="#6fd6f5">Router# ping 192.168.4.1</text>
+  <text x="150" y="46" text-anchor="middle" font-family="Consolas,monospace" font-size="14" fill="#6cc04a">!!!!!</text>
+</svg>

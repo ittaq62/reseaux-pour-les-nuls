@@ -1,0 +1,10 @@
+# Progression personnelle (creee par le serveur au premier lancement)
+sauvegarde/
+
+# Python
+__pycache__/
+*.pyc
+
+# Systeme
+Thumbs.db
+desktop.ini
