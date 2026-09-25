@@ -1,0 +1,37 @@
+/* Module 2 — questions supplémentaires des niveaux */
+(window.EXTRAS = window.EXTRAS || {}).osi = [
+  /* ---------- Extrême ---------- */
+  { id: 'xo1', lvl: 5, type: 'order',
+    q: 'Un PC envoie une requête HTTP. Remets dans l’ordre ce que l’on trouve <b>sur le câble</b>, du premier octet émis au dernier.',
+    items: ['En-tête Ethernet (adresses MAC)', 'En-tête IP (adresses IP)', 'En-tête TCP (ports)', 'Données : la requête HTTP', 'En-queue Ethernet (FCS)'],
+    hints: ['Chaque couche emballe ce que lui donne la couche du dessus : l’emballage le plus extérieur passe en premier.', 'La couche 2 ajoute un en-tête ET une en-queue.'],
+    explain: 'Trame = en-tête MAC + [paquet = en-tête IP + [segment = en-tête TCP + données]] + FCS. C’est l’encapsulation vue de l’extérieur.' },
+  { id: 'xo2', lvl: 5, type: 'qcm',
+    q: 'Un PC (MAC <code>A</code>, IP 192.168.1.10) envoie un paquet à un serveur (MAC <code>S</code>, IP 10.0.0.5) situé derrière le routeur R (MAC <code>R1</code> côté LAN). Sur le câble entre le PC et le switch, que contient la trame ?',
+    choices: ['MAC destination S, IP destination 10.0.0.5', 'MAC destination R1, IP destination 10.0.0.5', 'MAC destination R1, IP destination de R', 'MAC destination FF:FF:FF:FF:FF:FF, IP destination 10.0.0.5'], good: 1,
+    hints: ['La couche 2 ne va que jusqu’au prochain équipement ; la couche 3 va jusqu’au bout.'],
+    explain: 'MAC destination = celle de la <b>passerelle</b> (R1), IP destination = celle du <b>serveur</b>. Le routeur refera une nouvelle trame pour le saut suivant.' },
+  { id: 'xo3', lvl: 5, type: 'text', kind: 'int', accept: 125, ph: 'TTL',
+    q: 'Un paquet part d’un PC avec un <b>TTL de 128</b> et traverse <b>3 routeurs</b> avant d’arriver au serveur. Quelle est la valeur du TTL à l’arrivée ?',
+    hints: ['Chaque routeur décrémente le TTL de 1.'],
+    explain: '128 − 3 = <b>125</b>. C’est ainsi que <code>tracert</code> fonctionne : il envoie des paquets avec TTL 1, 2, 3… et chaque routeur qui tombe à 0 se dénonce par un message ICMP.' },
+  /* ---------- Impossible ---------- */
+  { id: 'xo4', lvl: 6, type: 'qcm',
+    q: 'Entre un PC et un serveur, il y a <b>2 routeurs</b>. Combien de trames Ethernet différentes transportent le même paquet, et l’adresse IP de destination change-t-elle (sans NAT) ?',
+    choices: ['3 trames différentes, IP de destination inchangée', 'Une seule trame de bout en bout, IP modifiée à chaque routeur', '3 trames, IP de destination modifiée à chaque routeur', 'Une seule trame, IP inchangée'], good: 0,
+    hints: ['Compte les liaisons : PC → R1, R1 → R2, R2 → serveur.'],
+    explain: '3 liaisons = <b>3 trames</b> (chaque routeur désencapsule puis réencapsule avec de nouvelles MAC). L’IP de destination, elle, reste celle du serveur (seul le TTL et le checksum changent).' },
+  { id: 'xo5', lvl: 6, type: 'text', kind: 'int', accept: 8, ph: 'IHL',
+    q: 'Un en-tête IPv4 contient <b>12 octets d’options</b>. Quelle valeur prend le champ <b>IHL</b> ?',
+    hints: ['IHL compte en mots de 32 bits (4 octets).', 'En-tête = 20 octets fixes + options.'],
+    explain: '(20 + 12) ÷ 4 = <b>8</b>. Sans options, IHL = 5 (20 octets) ; au maximum 15 (60 octets).' },
+  { id: 'xo6', lvl: 6, type: 'qcm',
+    q: 'Un routeur reçoit un paquet avec un <b>TTL = 1</b>, destiné à un réseau distant. Que fait-il ?',
+    choices: ['Il le transmet avec TTL = 1', 'Il le transmet avec TTL = 0', 'Il le détruit et renvoie un message ICMP à l’émetteur', 'Il le renvoie en broadcast'], good: 2,
+    hints: ['Il doit d’abord décrémenter le TTL…'],
+    explain: 'Il décrémente : TTL = 0 → le datagramme est <b>détruit</b> et un message <b>ICMP</b> (Time Exceeded) est renvoyé à l’émetteur, avec l’adresse du routeur.' },
+  { id: 'xo7', lvl: 6, type: 'qcm', q: '« TCP est orienté connexion, donc il fonctionne en commutation de circuits. » Vrai ou faux ?',
+    choices: ['Vrai : une connexion = un circuit réservé', 'Faux : TCP échange des segments pour établir une connexion logique, mais cela reste de la commutation de paquets', 'Vrai, mais seulement pour HTTPS', 'Faux : TCP n’établit aucune connexion'], good: 1,
+    hints: ['Ton poly insiste sur ce piège dans la partie TCP/IP.'],
+    explain: 'Faux. « Orienté connexion » = échange de segments de couche 4 pour confirmer l’existence <b>logique</b> de la connexion. Aucun circuit physique n’est réservé : c’est de la <b>commutation de paquets</b>.' }
+];
