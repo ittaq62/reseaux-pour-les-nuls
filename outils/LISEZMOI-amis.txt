@@ -1,0 +1,39 @@
+RÉSEAUX POUR LES NULS
+=====================
+
+Application de révision « Architecture, modèles et protocoles des réseaux » : cours, questions,
+Packet Tracer intégré, tableaux façon Excel et niveaux de difficulté (de Débutant à Impossible).
+Tout fonctionne sur ton ordinateur, sans Internet.
+
+AVANT TOUT
+----------
+Décompresse le fichier .zip (ne lance rien depuis l'intérieur du zip) et garde tous les fichiers
+ensemble dans le même dossier.
+
+SUR WINDOWS
+-----------
+1. Double-clic sur « Réseaux pour les nuls (Windows).bat ».
+2. Si Windows affiche un avertissement (« Windows a protégé votre ordinateur » ou « Avertissement
+   de sécurité ») : « Informations complémentaires » puis « Exécuter quand même » (ou « Exécuter »).
+3. Une petite fenêtre (le serveur) s'ouvre réduite dans la barre des tâches et la page s'ouvre dans
+   le navigateur. Laisse cette fenêtre ouverte pendant la révision ; ferme-la pour arrêter.
+
+SUR MAC (macOS 13 Ventura ou plus récent, puce Apple ou Intel)
+-----------------------------------------------------------------
+1. Double-clic sur « Réseaux pour les nuls (Mac) » : le Terminal s'ouvre (c'est le serveur) et la
+   page s'ouvre dans le navigateur. Laisse la fenêtre du Terminal ouverte pendant la révision ;
+   ferme-la pour arrêter.
+2. La première fois, macOS bloque le fichier parce qu'il ne vient pas de l'App Store (message
+   « Apple ne peut pas vérifier… »). C'est normal :
+   - macOS 15 Sequoia et plus récent : clique sur « Terminé », puis ouvre Réglages Système >
+     Confidentialité et sécurité, descends jusqu'au message sur « Réseaux pour les nuls (Mac) »,
+     clique sur « Ouvrir quand même » et confirme.
+   - macOS 13 Ventura et 14 Sonoma : clic droit (ou Ctrl + clic) sur le fichier > Ouvrir > Ouvrir.
+   Ensuite, un simple double-clic suffit.
+3. Si le fichier s'ouvre dans TextEdit ou refuse de se lancer, le zip a sans doute été recompressé
+   en route. Dans le Terminal, tape « chmod +x  », glisse le fichier dans la fenêtre, puis Entrée.
+
+TA PROGRESSION
+--------------
+Elle est enregistrée au fur et à mesure dans le dossier « sauvegarde » (créé au premier lancement),
+à côté de l'application. Le bouton « Réinitialiser », en bas du menu, remet tout à zéro.

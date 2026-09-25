@@ -8,3 +8,6 @@ __pycache__/
 # Systeme
 Thumbs.db
 desktop.ini
+
+# Paquet a partager (python outils/paquet_amis.py)
+dist/
