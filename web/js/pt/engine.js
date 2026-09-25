@@ -1392,9 +1392,84 @@
     var tr = this.transact(h, r.ip, 'tcp', port);
     if (!tr.ok) return { ok: false, err: 'timeout' };
     var srv = tr.dev;
-    if (srv.cat !== 'server' || !srv.services.http.on) return { ok: false, err: 'timeout' };
+    if (srv.cat !== 'server') return { ok: false, err: 'timeout' };
+    if (tr.port === 80 && !srv.services.http.on) return { ok: false, err: 'timeout' };
+    if (tr.port === 443 && srv.services.http.https === false) return { ok: false, err: 'timeout' };
     if (tr.port !== 80 && tr.port !== 443) return { ok: false, err: 'timeout' };
     return { ok: true, server: srv, page: srv.services.http.pages, path: m[4] || '/', url: scheme + '://' + m[2] + (m[3] ? ':' + m[3] : '') + (m[4] || '') };
+  };
+
+  /* ---------------------------------------------------------- */
+  /* Messagerie : service EMAIL des serveurs, client Email des PC */
+  /* ---------------------------------------------------------- */
+  P.mailSvc = function (srv) {
+    var s = srv.services.email = srv.services.email || {};
+    if (s.smtp == null) s.smtp = true;
+    if (s.pop3 == null) s.pop3 = true;
+    if (s.domain == null) s.domain = '';
+    s.users = s.users || [];
+    s.boxes = s.boxes || {};
+    return s;
+  };
+  P.mailCfg = function (h) {
+    h.host.mail = h.host.mail || { name: '', addr: '', inSrv: '', outSrv: '', user: '', pw: '', inbox: [] };
+    return h.host.mail;
+  };
+  /* serveur de messagerie d'un domaine, vu depuis « from » : MX puis A */
+  P.mailHost = function (from, domain) {
+    if (!from.host || from.host.dns == null) return null;
+    var tr = this.transact(from, from.host.dns, 'udp', 53);
+    if (!tr.ok || tr.dev.cat !== 'server' || !tr.dev.services.dns.on) return null;
+    var recs = tr.dev.services.dns.records;
+    function same(a, b) { return String(a).toLowerCase().replace(/\.$/, '') === String(b).toLowerCase().replace(/\.$/, ''); }
+    var mx = recs.filter(function (r) { return r.type === 'MX' && same(r.name, domain); })[0];
+    var r = this.dnsResolve(from, mx ? mx.value : domain);
+    return r.ok ? r.ip : null;
+  };
+  /* dépose un message dans la boîte d'un utilisateur du serveur (relais SMTP si autre domaine) */
+  P.mailDeliver = function (srv, msg, hops) {
+    var es = this.mailSvc(srv);
+    var p = msg.to.split('@'), user = p[0].toLowerCase(), dom = (p[1] || '').toLowerCase();
+    if (es.domain && dom === es.domain.toLowerCase()) {
+      if (!es.users.some(function (u) { return u.name.toLowerCase() === user; })) return false;
+      (es.boxes[user] = es.boxes[user] || []).push(msg);
+      return true;
+    }
+    if (hops > 3) return false;
+    var dst = this.mailHost(srv, dom);
+    if (dst == null) return false;
+    var tr = this.transact(srv, dst, 'tcp', 25);
+    if (!tr.ok || tr.dev === srv || tr.dev.cat !== 'server' || !this.mailSvc(tr.dev).smtp) return false;
+    return this.mailDeliver(tr.dev, msg, hops + 1);
+  };
+  P.mailSend = function (h, to, subject, body) {
+    var c = this.mailCfg(h), log = ['Sending mail to ' + to + ' , with subject : ' + subject + ' ..', 'Mail Server: ' + (c.outSrv || '?')];
+    if (!c.addr || !c.outSrv) return { ok: false, log: log.concat(['Send Mail Failed.', '(Configure Mail : adresse e-mail et serveur sortant obligatoires)']) };
+    if (!/^[^@\s]+@[^@\s]+$/.test(to)) return { ok: false, log: log.concat(['Send Mail Failed.', '(adresse du destinataire invalide)']) };
+    var r = this.dnsResolve(h, c.outSrv);
+    if (!r.ok) return { ok: false, log: log.concat(['Unknown Mail Server.']) };
+    var tr = this.transact(h, r.ip, 'tcp', 25);
+    if (!tr.ok || tr.dev.cat !== 'server' || !this.mailSvc(tr.dev).smtp) return { ok: false, log: log.concat(['Send Mail Failed.']) };
+    var msg = { from: c.addr, to: to.toLowerCase(), subject: subject, body: body, date: new Date().toISOString() };
+    if (!this.mailDeliver(tr.dev, msg, 0)) return { ok: false, log: log.concat(['Send Mail Failed.']) };
+    this.touch();
+    return { ok: true, log: log.concat(['Send Success.']) };
+  };
+  P.mailReceive = function (h) {
+    var c = this.mailCfg(h), log = ['Receiving mail from POP3 Server ' + (c.inSrv || '?')];
+    if (!c.inSrv || !c.user) return { ok: false, n: 0, log: log.concat(['Receive Mail Failed.', '(Configure Mail : serveur entrant et nom d’utilisateur obligatoires)']) };
+    var r = this.dnsResolve(h, c.inSrv);
+    if (!r.ok) return { ok: false, n: 0, log: log.concat(['Unknown Mail Server.']) };
+    var tr = this.transact(h, r.ip, 'tcp', 110);
+    if (!tr.ok || tr.dev.cat !== 'server' || !this.mailSvc(tr.dev).pop3) return { ok: false, n: 0, log: log.concat(['Receive Mail Failed.']) };
+    var es = this.mailSvc(tr.dev), user = c.user.toLowerCase();
+    var u = es.users.filter(function (x) { return x.name.toLowerCase() === user; })[0];
+    if (!u || u.pw !== c.pw) return { ok: false, n: 0, log: log.concat(['Receive Mail Failed: Authentication failed.']) };
+    var box = es.boxes[user] || [];
+    c.inbox = c.inbox.concat(box);
+    es.boxes[user] = [];
+    this.touch();
+    return { ok: true, n: box.length, log: log.concat(['Receive Mail Success.' + (box.length ? '' : ' (no new mail)')]) };
   };
 
   /* ---------------------------------------------------------- */

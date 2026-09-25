@@ -238,6 +238,11 @@
 .pt-ipc .sect { border-top: 1px solid #ccc; margin-top: 8px; padding-top: 4px; font-weight: 600; }
 .pt-ipc .pt-row > label:first-child { width: 140px; }
 .pt-ipc .msg { color: #000; margin-left: 12px; }
+.pt-mail { font-size: 12px; }
+.pt-mail .sect { border-top: 1px solid #ccc; margin-top: 8px; padding-top: 4px; font-weight: 600; }
+.pt-mail .pt-row > label:first-child { width: 140px; }
+.pt-mail .mview { border: 1px solid #c3c3c3; background: #fff; min-height: 90px; margin-top: 6px; padding: 6px 8px; font-size: 12px; overflow: auto; max-height: 160px; }
+.pt-mail .mlog { border: 1px solid #c3c3c3; background: #f7f7f7; margin-top: 6px; padding: 4px 8px; font-family: Consolas, monospace; font-size: 11px; white-space: pre-wrap; min-height: 48px; }
 .pt-browser { display: flex; flex-direction: column; height: 100%; }
 .pt-browser .bar { display: flex; gap: 4px; align-items: center; padding: 3px 2px; }
 .pt-browser .bar .nv { width: 26px; height: 21px; border: 1px solid #aaa; background: #eee; text-align: center; font-size: 12px; }

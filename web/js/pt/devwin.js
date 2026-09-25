@@ -537,7 +537,7 @@
   /* ---------------- Desktop ---------------- */
   var APPS = [['IP Configuration', 'ipconfig.png', 'ipc'], ['Dial-up', 'dialup.png'], ['Terminal', 'terminal.png'], ['Command Prompt', 'cmdprompt.png', 'cmd'],
     ['Web Browser', 'browser.png', 'web'], ['PC Wireless', 'Wireless-PC.png'], ['VPN', 'VPNdialup.png'], ['Traffic Generator', 'trafficGenerator.png'],
-    ['MIB Browser', 'mibbrowser.png'], ['Cisco IP Communicator', 'IPCommunicator.png'], ['Email', 'EmailClient.png'], ['PPPoE Dialer', 'PPPoE.png'],
+    ['MIB Browser', 'mibbrowser.png'], ['Cisco IP Communicator', 'IPCommunicator.png'], ['Email', 'EmailClient.png', 'mail'], ['PPPoE Dialer', 'PPPoE.png'],
     ['Text Editor', 'TextEditor.png'], ['Firewall', 'IPv4Firewall.png'], ['IPv6 Firewall', 'IPv6Firewall.png'], ['Netflow Collector', 'NetflowCollector.png'],
     ['IoT Monitor', 'IoEApp.png'], ['Bluetooth', 'Bluetooth.png']];
   D.desktop = function (p) {
@@ -564,7 +564,8 @@
     if (a[2] === 'ipc') this.ipConfig(body);
     else if (a[2] === 'cmd') this.cmd(body);
     else if (a[2] === 'web') this.browser(body);
-    else body.appendChild(h('div', null, '<p style="padding:20px;color:#555;font-size:13px">Application « ' + a[0] + ' » : non utilisée dans ce cours.<br><br>Les applications utiles ici sont <b>IP Configuration</b>, <b>Command Prompt</b> et <b>Web Browser</b>.</p>'));
+    else if (a[2] === 'mail') this.email(body);
+    else body.appendChild(h('div', null, '<p style="padding:20px;color:#555;font-size:13px">Application « ' + a[0] + ' » : non utilisée dans ce cours.<br><br>Les applications utiles ici sont <b>IP Configuration</b>, <b>Command Prompt</b>, <b>Web Browser</b> et <b>Email</b>.</p>'));
   };
   D.ipConfig = function (b) {
     var d = this.dev, app = this.app, net = app.net, hs = d.host, nic = d.ifaces[0];
@@ -668,6 +669,75 @@
     box.querySelectorAll('.pt-btn')[0].onclick = go;
     inp.onkeydown = function (e) { if (e.key === 'Enter') go(); };
   };
+  /* ---------------- Email (client de messagerie du PC) ---------------- */
+  D.email = function (b) {
+    var d = this.dev, app = this.app, net = app.net;
+    var c = net.mailCfg(d);
+    app.mailLog = app.mailLog || {};
+    var log = app.mailLog[d.name] = app.mailLog[d.name] || [];
+    var box = h('div', 'pt-mail');
+    b.appendChild(box);
+    var sel = -1;
+    function field(label, k, pw) { return '<div class="pt-row"><label>' + label + '</label><input class="pt-in" data-k="' + k + '"' + (pw ? ' type="password"' : '') + ' spellcheck="false"></div>'; }
+    function config() {
+      box.innerHTML = '<div class="sect">User Information</div>' + field('Your Name:', 'name') + field('Email Address', 'addr') +
+        '<div class="sect">Server Information</div>' + field('Incoming Mail Server', 'inSrv') + field('Outgoing Mail Server', 'outSrv') +
+        '<div class="sect">Logon Information</div>' + field('User Name:', 'user') + field('Password:', 'pw', true) +
+        '<div class="pt-row"><span class="grow"></span><button class="pt-btn">Save</button><button class="pt-btn">Clear</button><button class="pt-btn">Reset</button></div>';
+      var q = function (k) { return box.querySelector('[data-k=' + k + ']'); };
+      ['name', 'addr', 'inSrv', 'outSrv', 'user', 'pw'].forEach(function (k) { q(k).value = c[k] || ''; });
+      var bt = box.querySelectorAll('.pt-btn');
+      bt[0].onclick = function () {
+        var addr = q('addr').value.trim();
+        if (addr && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(addr)) { app.msg('Invalid Email Address.'); return; }
+        ['name', 'addr', 'inSrv', 'outSrv', 'user'].forEach(function (k) { c[k] = q(k).value.trim(); });
+        c.pw = q('pw').value;
+        net.touch(); app.changed(); browser();
+      };
+      bt[1].onclick = function () { ['name', 'addr', 'inSrv', 'outSrv', 'user', 'pw'].forEach(function (k) { q(k).value = ''; }); };
+      bt[2].onclick = function () { config(); };
+    }
+    function compose(to, subject) {
+      box.innerHTML = '<div class="pt-row"><button class="pt-btn">Send</button></div>' +
+        '<div class="pt-row"><label>To:</label><input class="pt-in" data-k="to" spellcheck="false" style="flex:1"></div>' +
+        '<div class="pt-row"><label>Subject:</label><input class="pt-in" data-k="sub" spellcheck="false" style="flex:1"></div>' +
+        '<textarea class="pt-in" data-k="body" style="height:170px;width:100%;box-sizing:border-box;font-family:Arial,sans-serif"></textarea>' +
+        '<div class="pt-row"><span class="grow"></span><button class="pt-btn">Cancel</button></div>';
+      var q = function (k) { return box.querySelector('[data-k=' + k + ']'); };
+      q('to').value = to || ''; q('sub').value = subject || '';
+      var bt = box.querySelectorAll('.pt-btn');
+      bt[0].onclick = function () {
+        var r = net.mailSend(d, q('to').value.trim(), q('sub').value.trim(), q('body').value);
+        r.log.forEach(function (l) { log.push(l); });
+        app.changed(); browser();
+      };
+      bt[1].onclick = function () { browser(); };
+    }
+    function browser() {
+      box.innerHTML = '<div class="pt-row"><button class="pt-btn">Compose</button><button class="pt-btn">Reply</button><button class="pt-btn">Receive</button><button class="pt-btn">Delete</button><span class="grow"></span><button class="pt-btn">Configure Mail</button></div>' +
+        '<div class="sect">Mails</div><div class="pt-list" style="height:120px"></div><div class="mview"></div><div class="mlog"></div>';
+      var bt = box.querySelectorAll('.pt-btn'), lst = box.querySelector('.pt-list'), view = box.querySelector('.mview'), lg = box.querySelector('.mlog');
+      function draw() {
+        lst.innerHTML = '<table><tr><th>From</th><th>Subject</th><th>Received</th></tr>' + c.inbox.map(function (m, i) {
+          return '<tr data-i="' + i + '"' + (i === sel ? ' class="sel"' : '') + '><td>' + esc(m.from) + '</td><td>' + esc(m.subject) + '</td><td>' + esc(String(m.date || '').replace('T', ' ').slice(0, 16)) + '</td></tr>';
+        }).join('') + '</table>';
+        lst.querySelectorAll('tr[data-i]').forEach(function (tr) { tr.onclick = function () { sel = +tr.dataset.i; draw(); }; });
+        var m = c.inbox[sel];
+        view.innerHTML = m ? '<b>From:</b> ' + esc(m.from) + '<br><b>To:</b> ' + esc(m.to) + '<br><b>Subject:</b> ' + esc(m.subject) + '<hr>' + esc(m.body).replace(/\n/g, '<br>') : '';
+        lg.textContent = log.slice(-8).join('\n');
+      }
+      bt[0].onclick = function () { compose(); };
+      bt[1].onclick = function () { var m = c.inbox[sel]; if (m) compose(m.from, /^re:/i.test(m.subject) ? m.subject : 'Re: ' + m.subject); };
+      bt[2].onclick = function () {
+        lg.textContent = log.slice(-8).concat(['Receiving mail from POP3 Server ' + (c.inSrv || '?')]).join('\n');
+        setTimeout(function () { var r = net.mailReceive(d); r.log.forEach(function (l) { log.push(l); }); app.changed(); draw(); }, 400);
+      };
+      bt[3].onclick = function () { if (sel >= 0 && c.inbox[sel]) { c.inbox.splice(sel, 1); sel = -1; net.touch(); app.changed(); draw(); } };
+      bt[4].onclick = function () { config(); };
+      draw();
+    }
+    if (!c.addr && !c.outSrv && !c.inSrv) config(); else browser();
+  };
   function defaultPage() {
     return '<center><font size="+2" color="blue">Cisco Packet Tracer</font></center><hr>Welcome to Cisco Packet Tracer. Opening doors to new opportunities. Mind Wide Open.<p>Quick Links:<br><a>A small page</a><br><a>Copyrights</a><br><a>Image page</a><br><a>Image</a></p>';
   }
@@ -707,7 +777,7 @@
     var uid = d.name.replace(/\W/g, '');
     if (s === 'HTTP') {
       r.appendChild(onoff('HTTP', sv.http, 'h' + uid));
-      var https = { on: sv.http.https !== false };
+      var https = { get on() { return sv.http.https !== false; }, set on(v) { sv.http.https = v; } };
       r.appendChild(onoff('HTTPS', https, 'hs' + uid));
       var fm = h('div', null, '<div style="margin:10px 0 4px">File Manager</div>');
       var lst = h('div', 'pt-list');
@@ -826,6 +896,51 @@
       b4[0].onclick = function () { var o = rec(); if (!o) return; dn.records.push(o); draw2(); net.touch(); app.changed(); };
       b4[1].onclick = function () { var o = rec(); if (!o || sel2 < 0) return; dn.records[sel2] = o; draw2(); net.touch(); app.changed(); };
       b4[2].onclick = function () { if (sel2 < 0) return; dn.records.splice(sel2, 1); sel2 = -1; draw2(); net.touch(); app.changed(); };
+      return;
+    }
+    if (s === 'EMAIL') {
+      var es = net.mailSvc(d);
+      r.appendChild(onoff('SMTP Service', { get on() { return es.smtp; }, set on(v) { es.smtp = v; } }, 'sm' + uid));
+      r.appendChild(onoff('POP3 Service', { get on() { return es.pop3; }, set on(v) { es.pop3 = v; } }, 'po' + uid));
+      var dr = h('div', 'pt-row', '<label>Domain Name:</label><input class="pt-in" style="width:220px" spellcheck="false"><button class="pt-btn">Set</button>');
+      var din = dr.querySelector('input');
+      din.value = es.domain;
+      dr.querySelector('button').onclick = function () {
+        var v = din.value.trim().toLowerCase();
+        if (v && !/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(v)) { app.msg('Invalid domain name.'); return; }
+        es.domain = v; net.touch(); app.changed(); app.msg(v ? 'Domain name set to ' + v + '.' : 'Domain name cleared.');
+      };
+      r.appendChild(dr);
+      r.appendChild(h('div', null, '<div style="margin:10px 0 4px">User Setup</div>'));
+      var ur = h('div', 'pt-row', '<label>User</label><input class="pt-in" style="width:140px" spellcheck="false"><label style="width:auto">Password</label><input class="pt-in" style="width:140px" spellcheck="false"><button class="pt-btn">+</button><button class="pt-btn">-</button>');
+      r.appendChild(ur);
+      var uin = ur.querySelectorAll('input'), ub = ur.querySelectorAll('button');
+      var ul = h('div', 'pt-list'); ul.style.height = '150px';
+      r.appendChild(ul);
+      var usel = -1;
+      function drawUsers() {
+        ul.innerHTML = '<table><tr><th>User</th><th>Messages</th></tr>' + es.users.map(function (u, i) {
+          var n = (es.boxes[u.name.toLowerCase()] || []).length;
+          return '<tr data-i="' + i + '"' + (i === usel ? ' class="sel"' : '') + '><td>' + esc(u.name) + '</td><td>' + n + '</td></tr>';
+        }).join('') + '</table>';
+        ul.querySelectorAll('tr[data-i]').forEach(function (tr) { tr.onclick = function () { usel = +tr.dataset.i; drawUsers(); }; });
+      }
+      drawUsers();
+      ub[0].onclick = function () {
+        var nm = uin[0].value.trim(), pw = uin[1].value;
+        if (!nm || !pw) { app.msg('User name and password cannot be empty.'); return; }
+        if (!/^[A-Za-z0-9._-]+$/.test(nm)) { app.msg('Invalid user name.'); return; }
+        if (es.users.some(function (u) { return u.name.toLowerCase() === nm.toLowerCase(); })) { app.msg('The user already exists.'); return; }
+        es.users.push({ name: nm, pw: pw });
+        uin[0].value = ''; uin[1].value = '';
+        net.touch(); app.changed(); drawUsers();
+      };
+      ub[1].onclick = function () {
+        if (usel < 0 || !es.users[usel]) return;
+        delete es.boxes[es.users[usel].name.toLowerCase()];
+        es.users.splice(usel, 1); usel = -1;
+        net.touch(); app.changed(); drawUsers();
+      };
       return;
     }
     var key = s.toLowerCase().replace(/\s+/g, '');
