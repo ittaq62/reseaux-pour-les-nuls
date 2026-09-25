@@ -122,6 +122,37 @@ Diffusion 192.168.1.191   11000000.10101000.00000001.10111111
     { id: 'i15', type: 'qcm', q: 'Quelle machine doit <b>obligatoirement</b> avoir une adresse IP statique ?', choices: ['Le PC portable d’un commercial', 'Le serveur web de l’entreprise', 'Le smartphone d’un visiteur', 'Une borne de consultation'], good: 1,
       hints: ['Les autres doivent toujours pouvoir la retrouver à la même adresse.'], explain: 'Serveurs, imprimantes réseau et routeurs : adresse <b>statique</b>. Les postes clients passent par DHCP.' },
     { id: 'i16', type: 'qcm', q: 'Qui gère l’attribution des adresses IP publiques au niveau mondial (successeur de l’InterNIC) ?', choices: ['L’IETF', 'L’IANA', 'L’ISO', 'Cisco'], good: 1,
-      hints: ['Internet Assigned Numbers Authority.'], explain: 'L’<b>IANA</b> garantit l’unicité des adresses publiques (via les registres régionaux et les FAI).' }
+      hints: ['Internet Assigned Numbers Authority.'], explain: 'L’<b>IANA</b> garantit l’unicité des adresses publiques (via les registres régionaux et les FAI).' },
+    { id: 'i-lab', lvl: 4, type: 'pt', file: 'Adressage-a-corriger.pkt', tag: 'Dépannage IP',
+      q: '<b>Dépannage de l’adressage.</b> Plus aucun poste ne joint le serveur SRV ! Le plan d’adressage est pourtant simple : postes en <code>192.168.10.0/24</code> (passerelle <code>192.168.10.254</code>), serveur en <code>192.168.20.0/24</code> (passerelle <code>192.168.20.254</code>). Trois erreurs se cachent : <b>deux sur les PC</b>, <b>une sur le routeur R1</b>. Le serveur, lui, est bien configuré. Trouve-les et corrige-les pour que PC0, PC1 et PC2 joignent SRV.',
+      build: function () {
+        return LAB.make({
+          devices: [['PC0', 'PC-PT', 100, 90], ['PC1', 'PC-PT', 100, 220], ['PC2', 'PC-PT', 100, 350], ['Switch0', '2960-24TT', 320, 220], ['R1', '1941', 560, 220], ['Switch1', '2960-24TT', 800, 220], ['SRV', 'Server-PT', 1020, 220]],
+          links: [['PC0', 'FastEthernet0', 'Switch0', 'FastEthernet0/1', 'straight'], ['PC1', 'FastEthernet0', 'Switch0', 'FastEthernet0/2', 'straight'], ['PC2', 'FastEthernet0', 'Switch0', 'FastEthernet0/3', 'straight'], ['Switch0', 'GigabitEthernet0/1', 'R1', 'GigabitEthernet0/0', 'straight'], ['R1', 'GigabitEthernet0/1', 'Switch1', 'GigabitEthernet0/1', 'straight'], ['SRV', 'FastEthernet0', 'Switch1', 'FastEthernet0/1', 'straight']],
+          notes: [[60, 450, 'Plan : postes 192.168.10.0/24 (passerelle 192.168.10.254) · serveur 192.168.20.0/24 (passerelle 192.168.20.254)']],
+          cli: { R1: ['conf t', 'hostname R1', 'interface g0/0', 'ip address 192.168.10.254 255.255.255.0', 'no shutdown', 'interface g0/1', 'ip address 192.168.20.254 255.255.255.252', 'no shutdown', 'end'] },
+          hosts: { PC0: { ip: '192.168.10.10', mask: '255.255.255.0', gw: '192.168.10.254' }, PC1: { ip: '192.168.10.11', mask: '255.255.255.0', gw: '192.168.10.1' }, PC2: { ip: '192.168.1.12', mask: '255.255.255.0', gw: '192.168.1.254' }, SRV: { ip: '192.168.20.10', mask: '255.255.255.0', gw: '192.168.20.254' } }
+        });
+      },
+      tasks: [
+        { label: 'R1 G0/1 a un masque cohérent avec le réseau du serveur (192.168.20.0/24)', check: function (n) { return LAB.ifIp(n, 'R1', 'GigabitEthernet0/1', '192.168.20.254', '255.255.255.0'); } },
+        { label: 'PC1 utilise la bonne passerelle', check: function (n) { return n.dev('PC1').host.gw === NET.ip2int('192.168.10.254'); } },
+        { label: 'PC2 a une adresse libre du réseau des postes et la bonne passerelle', check: function (n) {
+          var h = n.dev('PC2').host, c = NET.parseCIDR('192.168.10.0/24');
+          if (!LAB.hostInNet(n, 'PC2', '192.168.10.0/24') || h.gw !== NET.ip2int('192.168.10.254')) return false;
+          if (h.ip === c.ip || h.ip === NET.bcastOf(c.ip, c.len)) return false;
+          return n.devices.every(function (d) { return d.name === 'PC2' || n.allIPs(d).indexOf(h.ip) < 0; });
+        } },
+        { label: 'PC0 joint le serveur', check: function (n) { return n.canPing('PC0', 'SRV'); } },
+        { label: 'PC1 joint le serveur', check: function (n) { return n.canPing('PC1', 'SRV'); } },
+        { label: 'PC2 joint le serveur', check: function (n) { return n.canPing('PC2', 'SRV'); } }
+      ],
+      hints: ['Sur chaque PC : Desktop → Command Prompt → <code>ipconfig</code>, puis compare avec le plan d’adressage (la note sur l’espace de travail).', 'PC0 est bien configuré et ne joint pourtant pas le serveur : le problème est sur le chemin. Sur R1, <code>show ip route</code> : le réseau connecté sur G0/1 est-il vraiment 192.168.20.0/24 ?', 'R1 : <code>conf t</code> → <code>interface g0/1</code> → <code>ip address 192.168.20.254 255.255.255.0</code>. PC1 : passerelle 192.168.10.254. PC2 : une adresse libre de 192.168.10.0/24 (par exemple 192.168.10.12) et la passerelle 192.168.10.254.'],
+      solution: [
+        { dev: 'R1', cli: ['conf t', 'interface g0/1', 'ip address 192.168.20.254 255.255.255.0', 'end'] },
+        { dev: 'PC1', host: { gw: '192.168.10.254' } },
+        { dev: 'PC2', host: { ip: '192.168.10.12', mask: '255.255.255.0', gw: '192.168.10.254' } }
+      ],
+      explain: 'Trois erreurs classiques : une passerelle qui n’existe pas (PC1 envoie tout à 192.168.10.1, personne ne répond), une adresse hors du réseau (PC2 en 192.168.1.x ne peut même pas joindre sa passerelle) et un masque trop long sur le routeur : en /30, R1 croit que G0/1 ne dessert que 192.168.20.252 à .255, donc il n’a <b>aucune route</b> vers 192.168.20.10. Réflexe de dépannage : <code>ipconfig</code> sur les postes, <code>show ip route</code> sur le routeur.' }
   ]
 });
