@@ -296,3 +296,35 @@ button { font-family: inherit; }
   .f-head h2 { color: #000; font-size: 13pt; }
   .f-sub { color: #333; font-size: 7.5pt; }
 }
+
+/* ---------- Niveaux de difficulté ---------- */
+.lvl-pick { margin-top: 10px; display: flex; align-items: center; gap: 8px; font-size: .74rem; color: #8ea4c2; }
+.lvl-pick select { flex: 1; background: #0b1a2f; color: #e9f0f8; border: 1px solid #25446d; border-radius: 7px; padding: 5px 6px; font-size: .8rem; font-family: inherit; }
+.lvl-pick select:focus { outline: 2px solid #00bceb; outline-offset: 1px; }
+.home-title small { font-size: .74rem; font-weight: 400; color: var(--muted); margin-left: 6px; }
+.lvl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.lvl-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 13px; cursor: pointer; transition: transform .12s, border-color .12s; }
+.lvl-card:hover, .lvl-card:focus { transform: translateY(-2px); border-color: var(--cyan); outline: none; }
+.lvl-card.on { border-color: var(--orange); box-shadow: 0 0 0 1px var(--orange) inset; }
+.lvl-card .lc-top { display: flex; align-items: center; gap: 8px; font-size: .95rem; }
+.lvl-card .lc-icon { font-size: 1.35rem; }
+.lvl-card .lc-cur { margin-left: auto; font-size: .64rem; background: var(--orange); color: #000; border-radius: 99px; padding: 1px 7px; font-weight: 700; }
+.lvl-card p { font-size: .74rem; color: var(--muted); line-height: 1.4; margin: 6px 0 8px; min-height: 3.1em; }
+.lvl-card .lc-foot { display: flex; justify-content: space-between; font-size: .72rem; color: var(--text-2); }
+.lvl-card .hc-prog { margin-top: 6px; height: 5px; border-radius: 99px; background: var(--panel-3); overflow: hidden; }
+.lvl-card .hc-fill { height: 100%; background: var(--cyan-2); }
+.lvl-card .hc-fill.full { background: var(--green); }
+.q-mode { font-size: .8rem; color: var(--text-2); background: var(--panel-2); border: 1px solid var(--border); border-left: 4px solid var(--orange); border-radius: 8px; padding: 7px 11px; margin-bottom: 10px; }
+.lvl-badge { border-radius: 99px; padding: 1px 8px; letter-spacing: 0; text-transform: none; font-size: .7rem; font-weight: 600; border: 1px solid transparent; }
+.lvl-badge.l1 { background: rgba(108, 192, 74, .16); color: #7fd65c; border-color: rgba(108, 192, 74, .45); }
+.lvl-badge.l2 { background: rgba(0, 188, 235, .14); color: #52cdf0; border-color: rgba(0, 188, 235, .45); }
+.lvl-badge.l3 { background: rgba(255, 216, 77, .14); color: #f2c94c; border-color: rgba(255, 216, 77, .45); }
+.lvl-badge.l4 { background: rgba(251, 171, 24, .16); color: #fbab18; border-color: rgba(251, 171, 24, .5); }
+.lvl-badge.l5 { background: rgba(226, 35, 26, .16); color: #ff7a72; border-color: rgba(226, 35, 26, .5); }
+.lvl-badge.l6 { background: rgba(160, 90, 255, .16); color: #c09bff; border-color: rgba(160, 90, 255, .5); }
+[data-theme="light"] .lvl-badge.l1 { color: #2f7d18; }
+[data-theme="light"] .lvl-badge.l2 { color: #006d99; }
+[data-theme="light"] .lvl-badge.l3 { color: #8a6a00; }
+[data-theme="light"] .lvl-badge.l4 { color: #9a5c00; }
+[data-theme="light"] .lvl-badge.l5 { color: #b3160f; }
+[data-theme="light"] .lvl-badge.l6 { color: #6a2fc0; }
