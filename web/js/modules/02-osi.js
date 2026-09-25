@@ -165,6 +165,26 @@
     { id: 'o16', type: 'qcm', q: 'Quel protocole permet de trouver l’adresse MAC correspondant à une adresse IP du réseau local ?',
       choices: ['DNS', 'DHCP', 'ARP', 'ICMP'], good: 2,
       hints: ['Address Resolution Protocol.'],
-      explain: '<b>ARP</b> diffuse une requête (broadcast) et la machine concernée répond avec sa MAC. DNS, lui, traduit un <b>nom</b> en IP.' }
+      explain: '<b>ARP</b> diffuse une requête (broadcast) et la machine concernée répond avec sa MAC. DNS, lui, traduit un <b>nom</b> en IP.' },
+    { id: 'o-lab', lvl: 4, type: 'pt', file: 'Labo-ARP.pkt', tag: 'ARP',
+      q: '<b>Observer ARP dans Packet Tracer.</b> Le réseau est prêt : PC0 (192.168.1.10) et PC1 (192.168.1.11) dans le LAN 1, le routeur R1 (192.168.1.254 / 192.168.2.254), et PC2 (192.168.2.10) dans le LAN 2. Les tables ARP sont vides.<br>Depuis <b>PC0</b> : <code>ping 192.168.1.11</code>, puis <code>ping 192.168.2.10</code>, puis <code>arp -a</code>. Regarde bien quelles adresses MAC PC0 a apprises… Les objectifs se valident en lisant les tables ARP (ne les efface pas avec <code>arp -d</code>).',
+      build: function () {
+        return LAB.make({
+          devices: [['PC0', 'PC-PT', 120, 110], ['PC1', 'PC-PT', 120, 300], ['Switch0', '2960-24TT', 340, 200], ['R1', '1941', 560, 200], ['Switch1', '2960-24TT', 780, 200], ['PC2', 'PC-PT', 1000, 200]],
+          links: [['PC0', 'FastEthernet0', 'Switch0', 'FastEthernet0/1', 'straight'], ['PC1', 'FastEthernet0', 'Switch0', 'FastEthernet0/2', 'straight'], ['Switch0', 'GigabitEthernet0/1', 'R1', 'GigabitEthernet0/0', 'straight'], ['R1', 'GigabitEthernet0/1', 'Switch1', 'GigabitEthernet0/1', 'straight'], ['PC2', 'FastEthernet0', 'Switch1', 'FastEthernet0/1', 'straight']],
+          cli: { R1: ['conf t', 'hostname R1', 'interface g0/0', 'ip address 192.168.1.254 255.255.255.0', 'no shutdown', 'interface g0/1', 'ip address 192.168.2.254 255.255.255.0', 'no shutdown', 'end'] },
+          hosts: { PC0: { ip: '192.168.1.10', mask: '255.255.255.0', gw: '192.168.1.254' }, PC1: { ip: '192.168.1.11', mask: '255.255.255.0', gw: '192.168.1.254' }, PC2: { ip: '192.168.2.10', mask: '255.255.255.0', gw: '192.168.2.254' } },
+          notes: [[100, 420, 'LAN 1 : 192.168.1.0/24'], [760, 300, 'LAN 2 : 192.168.2.0/24']]
+        });
+      },
+      tasks: [
+        { label: 'La table ARP de PC0 contient l’adresse MAC de PC1', check: function (n) { var e = n.dev('PC0').arp['192.168.1.11']; return !!e && e.mac === n.dev('PC1').ifaces[0].mac; } },
+        { label: 'La table ARP de PC0 contient la MAC de sa passerelle (R1 G0/0)', check: function (n) { var e = n.dev('PC0').arp['192.168.1.254']; return !!e && e.mac === n.iface(n.dev('R1'), 'GigabitEthernet0/0').mac; } },
+        { label: 'PC0 n’a PAS d’entrée ARP pour PC2 (192.168.2.10)', check: function (n) { return !n.dev('PC0').arp['192.168.2.10'] && !!n.dev('PC0').arp['192.168.1.254']; } },
+        { label: 'C’est R1 qui a appris la MAC de PC2 (sa table ARP)', check: function (n) { var e = n.dev('R1').arp['192.168.2.10']; return !!e && e.mac === n.dev('PC2').ifaces[0].mac; } }
+      ],
+      hints: ['PC0 → Desktop → Command Prompt : <code>ping 192.168.1.11</code> puis <code>ping 192.168.2.10</code>.', '<code>arp -a</code> sur PC0 affiche ses entrées. Sur R1 (onglet CLI) : <code>show arp</code>.', 'Pour joindre un autre réseau, un PC n’a besoin que de la MAC de sa <b>passerelle</b> : c’est le routeur qui fera ARP de l’autre côté.'],
+      solution: [{ text: 'Sur PC0 (Command Prompt) : <code>ping 192.168.1.11</code> puis <code>ping 192.168.2.10</code>, puis <code>arp -a</code>.', fn: function (n) { n.ping(n.dev('PC0'), NET.ip2int('192.168.1.11'), 4); n.ping(n.dev('PC0'), NET.ip2int('192.168.2.10'), 4); } }],
+      explain: 'PC0 connaît la MAC de PC1 (même réseau) et celle de <b>R1</b> (sa passerelle), mais <b>jamais</b> celle de PC2 : pour un réseau distant, la trame est adressée à la passerelle, et c’est R1 qui résout la MAC de PC2 de son côté. C’est l’encapsulation couche 2 « de saut en saut ».' }
   ]
 });
