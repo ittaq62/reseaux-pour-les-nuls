@@ -120,7 +120,33 @@
     { id: 's14', type: 'text', q: 'Dans le schéma « VLSM subnets » du cours, 10.3.0.0/16 est redécoupé en <b>/28</b>.',
       fields: [{ label: 'Nombre de sous-réseaux /28 possibles', kind: 'int', answer: 4096 }, { label: 'Nombre d’hôtes par /28', kind: 'int', answer: 14 }, { label: '3e sous-réseau (après 10.3.0.0 et 10.3.0.16)', kind: 'cidr', answer: '10.3.0.32/28', ph: 'a.b.c.d/n' }],
       hints: ['Bits empruntés : 28 − 16 = 12 → 2<sup>12</sup>.', 'Un /28 = blocs de 16 adresses.'],
-      explain: '2<sup>12</sup> = 4096 sous-réseaux de 2<sup>4</sup> − 2 = 14 hôtes : 10.3.0.0, 10.3.0.16, <b>10.3.0.32</b>, 10.3.0.48… (ceux du schéma).' }
+      explain: '2<sup>12</sup> = 4096 sous-réseaux de 2<sup>4</sup> − 2 = 14 hôtes : 10.3.0.0, 10.3.0.16, <b>10.3.0.32</b>, 10.3.0.48… (ceux du schéma).' },
+    { id: 's-lab', lvl: 4, type: 'pt', file: 'Situation2.pkt', tag: 'Sous-réseaux',
+      q: '<b>La Situation 2 dans Packet Tracer.</b> Tu as calculé le plan de 192.168.59.0 découpé en /26 : SERVEURS = .0, FIXES = .64, MOBILES = .128. Mets-le en œuvre sur le routeur 2911 <b>R1</b> (déjà câblé) : chaque interface prend la <b>1re adresse</b> de son sous-réseau (G0/0 = SERVEURS, G0/1 = FIXES, G0/2 = MOBILES) et chaque machine la <b>2e adresse</b>, avec le bon masque et la bonne passerelle.',
+      build: function () {
+        return LAB.make({
+          devices: [['R1', '2911', 520, 90], ['S-SERVEURS', '2960-24TT', 200, 280], ['S-FIXES', '2960-24TT', 520, 280], ['S-MOBILES', '2960-24TT', 840, 280], ['SRV1', 'Server-PT', 200, 460], ['FIXE1', 'PC-PT', 520, 460], ['MOBILE1', 'Laptop-PT', 840, 460]],
+          links: [['R1', 'GigabitEthernet0/0', 'S-SERVEURS', 'GigabitEthernet0/1', 'straight'], ['R1', 'GigabitEthernet0/1', 'S-FIXES', 'GigabitEthernet0/1', 'straight'], ['R1', 'GigabitEthernet0/2', 'S-MOBILES', 'GigabitEthernet0/1', 'straight'], ['SRV1', 'FastEthernet0', 'S-SERVEURS', 'FastEthernet0/1', 'straight'], ['FIXE1', 'FastEthernet0', 'S-FIXES', 'FastEthernet0/1', 'straight'], ['MOBILE1', 'FastEthernet0', 'S-MOBILES', 'FastEthernet0/1', 'straight']],
+          notes: [[120, 560, 'Situation 2 : 192.168.59.0 découpé en /26 — SERVEURS (G0/0) · FIXES (G0/1) · MOBILES (G0/2)']]
+        });
+      },
+      tasks: [
+        { label: 'R1 G0/0 (SERVEURS) : 1re adresse du sous-réseau, bon masque, interface active', check: function (n) { return LAB.ifIp(n, 'R1', 'GigabitEthernet0/0', '192.168.59.1', '255.255.255.192') && LAB.ifUp(n, 'R1', 'GigabitEthernet0/0'); } },
+        { label: 'R1 G0/1 (FIXES) : 1re adresse du sous-réseau, bon masque, interface active', check: function (n) { return LAB.ifIp(n, 'R1', 'GigabitEthernet0/1', '192.168.59.65', '255.255.255.192') && LAB.ifUp(n, 'R1', 'GigabitEthernet0/1'); } },
+        { label: 'R1 G0/2 (MOBILES) : 1re adresse du sous-réseau, bon masque, interface active', check: function (n) { return LAB.ifIp(n, 'R1', 'GigabitEthernet0/2', '192.168.59.129', '255.255.255.192') && LAB.ifUp(n, 'R1', 'GigabitEthernet0/2'); } },
+        { label: 'SRV1 : 2e adresse de SERVEURS, masque et passerelle', check: function (n) { return LAB.hostIs(n, 'SRV1', '192.168.59.2', '255.255.255.192', '192.168.59.1'); } },
+        { label: 'FIXE1 : 2e adresse de FIXES, masque et passerelle', check: function (n) { return LAB.hostIs(n, 'FIXE1', '192.168.59.66', '255.255.255.192', '192.168.59.65'); } },
+        { label: 'MOBILE1 : 2e adresse de MOBILES, masque et passerelle', check: function (n) { return LAB.hostIs(n, 'MOBILE1', '192.168.59.130', '255.255.255.192', '192.168.59.129'); } },
+        { label: 'FIXE1 et MOBILE1 joignent le serveur', check: function (n) { return n.canPing('FIXE1', 'SRV1') && n.canPing('MOBILE1', 'SRV1'); } }
+      ],
+      hints: ['Masque /26 = 255.255.255.192. 1res adresses : .1, .65, .129 ; 2es adresses : .2, .66, .130.', 'R1 (onglet CLI) : <code>enable</code> → <code>conf t</code> → <code>interface g0/0</code> → <code>ip address 192.168.59.1 255.255.255.192</code> → <code>no shutdown</code>, puis pareil pour g0/1 et g0/2.', 'Chaque machine : Desktop → IP Configuration. Passerelle = l’adresse de R1 dans son sous-réseau (SRV1 → .1, FIXE1 → .65, MOBILE1 → .129).'],
+      solution: [
+        { dev: 'R1', cli: ['conf t', 'interface g0/0', 'ip address 192.168.59.1 255.255.255.192', 'no shutdown', 'interface g0/1', 'ip address 192.168.59.65 255.255.255.192', 'no shutdown', 'interface g0/2', 'ip address 192.168.59.129 255.255.255.192', 'no shutdown', 'end'] },
+        { dev: 'SRV1', host: { ip: '192.168.59.2', mask: '255.255.255.192', gw: '192.168.59.1' } },
+        { dev: 'FIXE1', host: { ip: '192.168.59.66', mask: '255.255.255.192', gw: '192.168.59.65' } },
+        { dev: 'MOBILE1', host: { ip: '192.168.59.130', mask: '255.255.255.192', gw: '192.168.59.129' } }
+      ],
+      explain: 'Le tableau devient un vrai réseau : trois sous-réseaux /26, donc trois domaines de diffusion séparés par R1. Aucune route à écrire : les trois réseaux sont directement connectés au routeur (lettre <b>C</b> dans <code>show ip route</code>).' }
   ]
   });
 })();
