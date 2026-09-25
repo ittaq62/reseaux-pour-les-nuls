@@ -713,13 +713,20 @@
       };
       bt[1].onclick = function () { browser(); };
     }
+    /* date de réception à l'heure locale : AAAA-MM-JJ HH:MM */
+    function heure(iso) {
+      var t = new Date(iso);
+      if (!iso || isNaN(t)) return '';
+      var p = function (x) { return (x < 10 ? '0' : '') + x; };
+      return t.getFullYear() + '-' + p(t.getMonth() + 1) + '-' + p(t.getDate()) + ' ' + p(t.getHours()) + ':' + p(t.getMinutes());
+    }
     function browser() {
       box.innerHTML = '<div class="pt-row"><button class="pt-btn">Compose</button><button class="pt-btn">Reply</button><button class="pt-btn">Receive</button><button class="pt-btn">Delete</button><span class="grow"></span><button class="pt-btn">Configure Mail</button></div>' +
         '<div class="sect">Mails</div><div class="pt-list" style="height:120px"></div><div class="mview"></div><div class="mlog"></div>';
       var bt = box.querySelectorAll('.pt-btn'), lst = box.querySelector('.pt-list'), view = box.querySelector('.mview'), lg = box.querySelector('.mlog');
       function draw() {
         lst.innerHTML = '<table><tr><th>From</th><th>Subject</th><th>Received</th></tr>' + c.inbox.map(function (m, i) {
-          return '<tr data-i="' + i + '"' + (i === sel ? ' class="sel"' : '') + '><td>' + esc(m.from) + '</td><td>' + esc(m.subject) + '</td><td>' + esc(String(m.date || '').replace('T', ' ').slice(0, 16)) + '</td></tr>';
+          return '<tr data-i="' + i + '"' + (i === sel ? ' class="sel"' : '') + '><td>' + esc(m.from) + '</td><td>' + esc(m.subject) + '</td><td>' + esc(heure(m.date)) + '</td></tr>';
         }).join('') + '</table>';
         lst.querySelectorAll('tr[data-i]').forEach(function (tr) { tr.onclick = function () { sel = +tr.dataset.i; draw(); }; });
         var m = c.inbox[sel];
@@ -908,7 +915,7 @@
       dr.querySelector('button').onclick = function () {
         var v = din.value.trim().toLowerCase();
         if (v && !/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(v)) { app.msg('Invalid domain name.'); return; }
-        es.domain = v; net.touch(); app.changed(); app.msg(v ? 'Domain name set to ' + v + '.' : 'Domain name cleared.');
+        es.domain = v; net.touch(); app.changed();
       };
       r.appendChild(dr);
       r.appendChild(h('div', null, '<div style="margin:10px 0 4px">User Setup</div>'));
