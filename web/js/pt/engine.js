@@ -1149,7 +1149,8 @@
       if (!cur) return { status: st.storm ? 'storm' : 'timeout', hops: hops };
     }
     /* 2. saut par saut */
-    for (var guard = 0; guard < 64; guard++) {
+    /* un routeur décrémente toujours le TTL (255 au plus) : une boucle de routage finit en « TTL expired » */
+    for (var guard = 0; guard < 300; guard++) {
       var d = cur.dev, ing = cur.ifc;
       hops.push(d.name);
       if (d.host) {
