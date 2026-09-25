@@ -122,7 +122,35 @@ for d in resp.json()["response"]:
       hints: ['Une seule requête GET renvoie toute la liste dans "response".'], explain: 'Une seule requête ; Python parcourt ensuite la liste pour extraire ce qui intéresse le programmeur. C’est ce qui rend les résultats <b>exploitables</b> (inventaire, export, supervision…).' },
     { id: 'sd9', type: 'text', q: 'Commande pour se connecter en SSH depuis le PC Admin au switch SWR3 (10.0.1.4) avec l’utilisateur cisco :', kind: 'text',
       accept: ['ssh -l cisco 10.0.1.4', /^ssh\s+-l\s+cisco\s+10\.0\.1\.4$/i], ph: 'ssh …',
-      hints: ['L’option est « -l » (la lettre L minuscule), suivie de l’utilisateur, puis l’adresse.'], explain: '<code>ssh -l cisco 10.0.1.4</code>, mot de passe <code>cisco123!</code>, puis <code>show version | include RELEASE</code>.' }
+      hints: ['L’option est « -l » (la lettre L minuscule), suivie de l’utilisateur, puis l’adresse.'], explain: '<code>ssh -l cisco 10.0.1.4</code>, mot de passe <code>cisco123!</code>, puis <code>show version | include RELEASE</code>.' },
+    { id: 'sd-lab', lvl: 5, type: 'pt', file: 'Switch-SSH.pkt', tag: 'SSH',
+      q: '<b>Rendre un switch administrable à distance.</b> Le contrôleur SDN et l’administrateur gèrent les équipements en <b>SSH</b> (comme SWR3 dans le LAB). Prépare le switch d’accès <b>SW-ACCES</b> (réseau 10.0.1.0/24) pour que <b>PC-ADMIN</b> (10.0.2.10, un autre réseau) puisse s’y connecter :<br>1) adresse de gestion <code>10.0.1.4/24</code> sur l’interface <b>Vlan1</b>, passerelle <code>10.0.1.1</code> ;<br>2) nom <b>SW-ACCES</b>, domaine <b>imt.local</b>, clés RSA de <b>1024</b> bits et SSH version 2 ;<br>3) compte local <b>admin</b> / <code>cisco123</code> ;<br>4) lignes VTY 0 à 15 : authentification par les comptes locaux et <b>SSH uniquement</b> (Telnet refusé).',
+      build: function () {
+        return LAB.make({
+          devices: [['PC-ADMIN', 'PC-PT', 100, 220], ['Switch-ADM', '2960-24TT', 300, 220], ['R1', '1941', 520, 220], ['SW-ACCES', '2960-24TT', 740, 220], ['PC1', 'PC-PT', 940, 220]],
+          links: [['PC-ADMIN', 'FastEthernet0', 'Switch-ADM', 'FastEthernet0/1', 'straight'], ['Switch-ADM', 'GigabitEthernet0/1', 'R1', 'GigabitEthernet0/1', 'straight'], ['R1', 'GigabitEthernet0/0', 'SW-ACCES', 'GigabitEthernet0/1', 'straight'], ['PC1', 'FastEthernet0', 'SW-ACCES', 'FastEthernet0/1', 'straight']],
+          cli: { R1: ['conf t', 'hostname R1', 'interface g0/0', 'ip address 10.0.1.1 255.255.255.0', 'no shutdown', 'interface g0/1', 'ip address 10.0.2.1 255.255.255.0', 'no shutdown', 'end'] },
+          hosts: { 'PC-ADMIN': { ip: '10.0.2.10', mask: '255.255.255.0', gw: '10.0.2.1' }, PC1: { ip: '10.0.1.20', mask: '255.255.255.0', gw: '10.0.1.1' } },
+          notes: [[80, 330, 'Administration 10.0.2.0/24 (passerelle .1) · Accès 10.0.1.0/24 (passerelle .1) · SW-ACCES = 10.0.1.4']]
+        });
+      },
+      tasks: [
+        { label: 'SW-ACCES : Vlan1 en 10.0.1.4/24, interface active', check: function (n) { return LAB.ifIp(n, 'SW-ACCES', 'Vlan1', '10.0.1.4', '255.255.255.0') && LAB.ifUp(n, 'SW-ACCES', 'Vlan1'); } },
+        { label: 'Passerelle par défaut 10.0.1.1 (pour répondre à un autre réseau)', check: function (n) { return n.dev('SW-ACCES').cfg.defGw === NET.ip2int('10.0.1.1'); } },
+        { label: 'Nom SW-ACCES et domaine imt.local', check: function (n) { var d = n.dev('SW-ACCES'); return d.hostname === 'SW-ACCES' && d.cfg.domainName === 'imt.local'; } },
+        { label: 'Clés RSA d’au moins 1024 bits et SSH version 2', check: function (n) { var c = n.dev('SW-ACCES').cfg; return !!c.rsa && c.rsa.bits >= 1024 && +c.sshVersion === 2; } },
+        { label: 'Compte local admin / cisco123', check: function (n) { return n.dev('SW-ACCES').cfg.users.some(function (u) { return u.name === 'admin' && u.pw === 'cisco123'; }); } },
+        { label: 'Lignes VTY : login local et transport input ssh', check: function (n) { var v = n.dev('SW-ACCES').cfg.lines.vty || {}; return v.login === 'local' && v.transport === 'ssh'; } },
+        { label: 'PC-ADMIN ouvre une session SSH (ssh -l admin 10.0.1.4)', check: function (n) { return LAB.sshLogin(n, 'PC-ADMIN', '10.0.1.4', 'admin', 'cisco123'); } },
+        { label: 'Telnet vers le switch est refusé', check: function (n) { var o = new PCShell(n, n.dev('PC-ADMIN')).exec('telnet 10.0.1.4'); return o.join(' ').indexOf('refused') >= 0; } }
+      ],
+      hints: ['<code>interface vlan 1</code> → <code>ip address 10.0.1.4 255.255.255.0</code> → <code>no shutdown</code>, puis <code>ip default-gateway 10.0.1.1</code> (en mode config globale).', '<code>hostname SW-ACCES</code>, <code>ip domain-name imt.local</code>, <code>crypto key generate rsa</code> (réponds <b>1024</b>), <code>ip ssh version 2</code>, <code>username admin password cisco123</code>.', '<code>line vty 0 15</code> → <code>login local</code> → <code>transport input ssh</code>. Test depuis PC-ADMIN : <code>ssh -l admin 10.0.1.4</code>.'],
+      solution: [
+        { dev: 'SW-ACCES', cli: ['conf t', 'interface vlan 1', 'ip address 10.0.1.4 255.255.255.0', 'no shutdown', 'exit', 'ip default-gateway 10.0.1.1', 'end'] },
+        { dev: 'SW-ACCES', cli: ['conf t', 'hostname SW-ACCES', 'ip domain-name imt.local', 'crypto key generate rsa', '1024', 'ip ssh version 2', 'username admin password cisco123', 'end'] },
+        { dev: 'SW-ACCES', cli: ['conf t', 'line vty 0 15', 'login local', 'transport input ssh', 'end'] }
+      ],
+      explain: 'Un switch de couche 2 n’a qu’une adresse de <b>gestion</b> (sur Vlan1) et une <code>ip default-gateway</code> pour répondre aux autres réseaux. Les clés RSA exigent un nom et un domaine (elles s’appellent SW-ACCES.imt.local). <code>login local</code> fait demander un compte, <code>transport input ssh</code> ferme la porte à Telnet, qui circule en clair.' }
   ]
   });
 })();
