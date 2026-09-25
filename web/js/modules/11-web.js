@@ -127,7 +127,37 @@ protocole       localisation  port  ressource</div>
       testLines: ['telnet www.imt.local', 'telnet www.imt.local 80', 'GET /index.html HTTP/1.1', '', 'telnet www.imt.local 80', 'GET /index.html HTTP/1.1', 'Host: www.imt.local', ''],
       hints: ['1re commande : <code>telnet www.imt.local 80</code>.', 'Puis tape : <code>GET /index.html HTTP/1.1</code> (Entrée), <code>Host: www.imt.local</code> (Entrée), et appuie encore sur Entrée (ligne vide).', 'En HTTP/1.1 sans « Host: », le serveur répond 400 Bad Request.'],
       answerHtml: '<pre>C:\\&gt;telnet www.imt.local 80\nGET /index.html HTTP/1.1\nHost: www.imt.local\n(ligne vide)</pre>',
-      explain: 'C’est exactement ce que fait ton navigateur à chaque clic : ouvrir une connexion TCP sur le port 80, envoyer la requête, recevoir le code de statut, les en-têtes puis la page.' }
+      explain: 'C’est exactement ce que fait ton navigateur à chaque clic : ouvrir une connexion TCP sur le port 80, envoyer la requête, recevoir le code de statut, les en-têtes puis la page.' },
+    { id: 'w-lab', lvl: 4, type: 'pt', file: 'Site-en-panne.pkt', tag: 'Dépannage web',
+      q: '<b>Le site de l’IMT ne répond plus.</b> Le site <b>www.imt.local</b> est hébergé sur <b>SRV-WEB (192.168.1.10)</b> et doit être accessible en <code>http://</code> <b>et</b> en <code>https://</code>. Le DNS de l’entreprise est SRV-DNS (192.168.1.2). Le réseau et le routage fonctionnent : <code>ping 192.168.1.10</code> répond depuis les PC. <b>Trois erreurs</b> se cachent dans les <b>services</b> des serveurs. Répare-les, puis vérifie avec le navigateur de PC0 (Desktop → Web Browser).',
+      build: function () {
+        var n = LAB.make({
+          devices: [['PC0', 'PC-PT', 100, 110], ['PC1', 'PC-PT', 100, 330], ['Switch-C', '2960-24TT', 300, 220], ['R1', '1941', 520, 220], ['Switch-S', '2960-24TT', 740, 220], ['SRV-DNS', 'Server-PT', 940, 110], ['SRV-WEB', 'Server-PT', 940, 330]],
+          links: [['PC0', 'FastEthernet0', 'Switch-C', 'FastEthernet0/1', 'straight'], ['PC1', 'FastEthernet0', 'Switch-C', 'FastEthernet0/2', 'straight'], ['Switch-C', 'GigabitEthernet0/1', 'R1', 'GigabitEthernet0/0', 'straight'], ['R1', 'GigabitEthernet0/1', 'Switch-S', 'GigabitEthernet0/1', 'straight'], ['SRV-DNS', 'FastEthernet0', 'Switch-S', 'FastEthernet0/1', 'straight'], ['SRV-WEB', 'FastEthernet0', 'Switch-S', 'FastEthernet0/2', 'straight']],
+          cli: { R1: ['conf t', 'hostname R1', 'interface g0/0', 'ip address 192.168.10.254 255.255.255.0', 'no shutdown', 'interface g0/1', 'ip address 192.168.1.254 255.255.255.0', 'no shutdown', 'end'] },
+          hosts: { PC0: { ip: '192.168.10.20', mask: '255.255.255.0', gw: '192.168.10.254', dns: '192.168.1.2' }, PC1: { ip: '192.168.10.21', mask: '255.255.255.0', gw: '192.168.10.254', dns: '192.168.1.2' }, 'SRV-DNS': { ip: '192.168.1.2', mask: '255.255.255.0', gw: '192.168.1.254' }, 'SRV-WEB': { ip: '192.168.1.10', mask: '255.255.255.0', gw: '192.168.1.254' } },
+          notes: [[80, 450, 'Clients 192.168.10.0/24 · Serveurs 192.168.1.0/24 · DNS 192.168.1.2 · Web 192.168.1.10']]
+        });
+        n.dev('SRV-DNS').services.dns = { on: true, records: [{ name: 'www.imt.local', type: 'A', value: '192.168.1.100' }] };
+        n.dev('SRV-WEB').services.http.on = false;
+        n.dev('SRV-WEB').services.http.https = false;
+        n.touch();
+        return n;
+      },
+      tasks: [
+        { label: 'www.imt.local est résolu vers le serveur web (192.168.1.10)', check: function (n) { var r = n.dnsResolve(n.dev('PC0'), 'www.imt.local'); return r.ok && r.ip === NET.ip2int('192.168.1.10'); } },
+        { label: 'PC0 ouvre http://www.imt.local', check: function (n) { return n.httpGet(n.dev('PC0'), 'http://www.imt.local').ok; } },
+        { label: 'PC0 ouvre https://www.imt.local', check: function (n) { return n.httpGet(n.dev('PC0'), 'https://www.imt.local').ok; } },
+        { label: 'PC1 ouvre aussi le site en http et en https', check: function (n) { return n.httpGet(n.dev('PC1'), 'http://www.imt.local').ok && n.httpGet(n.dev('PC1'), 'https://www.imt.local').ok; } }
+      ],
+      hints: ['Commence par <code>nslookup www.imt.local</code> sur PC0 : l’adresse obtenue est-elle celle du serveur web ?', 'Le navigateur affiche « Request Timeout » alors que le nom est bien résolu : le serveur ne répond pas sur le port 80. Regarde SRV-WEB → Services → HTTP.', 'Sur SRV-WEB → Services → HTTP, il y a deux interrupteurs : HTTP <b>et</b> HTTPS. Sur SRV-DNS → Services → DNS, corrige l’adresse de www.imt.local (192.168.1.10).'],
+      solution: [
+        { text: 'SRV-DNS → Services → DNS : l’enregistrement A de <code>www.imt.local</code> doit pointer vers 192.168.1.10 (et non 192.168.1.100).',
+          fn: function (n) { n.dev('SRV-DNS').services.dns.records = [{ name: 'www.imt.local', type: 'A', value: '192.168.1.10' }]; } },
+        { text: 'SRV-WEB → Services → HTTP : HTTP <b>On</b>.', fn: function (n) { n.dev('SRV-WEB').services.http.on = true; } },
+        { text: 'SRV-WEB → Services → HTTP : HTTPS <b>On</b>.', fn: function (n) { n.dev('SRV-WEB').services.http.https = true; } }
+      ],
+      explain: 'Trois pannes de services : (1) le DNS donnait 192.168.1.100 au lieu de 192.168.1.10 : le nom se résout, mais vers une machine qui n’existe pas ; (2) le service HTTP était éteint (port 80 fermé) ; (3) le service HTTPS aussi (port 443). Dans les deux derniers cas, le navigateur affiche « Request Timeout » : un nom résolu et un ping qui répond ne garantissent pas que le <b>service</b> tourne.' }
   ]
   });
 })();
