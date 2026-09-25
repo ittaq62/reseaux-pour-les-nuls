@@ -111,7 +111,37 @@ ${TOPO}
     { id: 'ex-q7', type: 'qcm', tag: 'Révision', q: 'Quelle commande Cisco affiche les traductions NAT en cours ?', choices: ['show ip route', 'show ip nat translations', 'show nat', 'show running-config nat'], good: 1,
       hints: ['show ip nat …'], explain: '<code>show ip nat translations</code> (et <code>show ip nat statistics</code>).' },
     { id: 'ex-q8', type: 'qcm', tag: 'Révision', q: 'Le routeur actif HSRP (priorité 150, preempt) tombe. Que voient les PC ?', choices: ['Ils doivent changer leur passerelle à la main', 'Rien ou presque : le routeur en veille reprend l’IP et la MAC virtuelles', 'Ils passent en APIPA', 'Ils perdent leur adresse IP'], good: 1,
-      hints: ['C’est tout l’intérêt de l’IP virtuelle.'], explain: 'La bascule est transparente : même IP, même MAC virtuelle (0000.0c07.acXX).' }
+      hints: ['C’est tout l’intérêt de l’IP virtuelle.'], explain: 'La bascule est transparente : même IP, même MAC virtuelle (0000.0c07.acXX).' },
+    { id: 'ex-lab', lvl: 5, type: 'pt', file: 'DS-Sujet2.pkt', tag: 'Sujet 2 en vrai',
+      q: '<b>Le Sujet 2 du DS, en vrai.</b> Le schéma du sujet est câblé et adressé dans Packet Tracer (Eth1 = G0/0, Eth2 = G0/1, Eth3 = G0/2 ; toutes les adresses du sujet sont déjà en place). Il ne manque que le routage : saisis sur R1, R2 et R3 les <b>routes statiques</b> de ton corrigé, puis vérifie les exigences du sujet : PC1 et PC2 accèdent à SRV1 et SRV2, et SRV1 accède à SRV2.',
+      build: function () {
+        return LAB.make({
+          devices: [['PC1', 'PC-PT', 80, 140], ['SW1', '2960-24TT', 240, 140], ['R1', '1941', 420, 140], ['R2', '2911', 640, 140], ['R3', '1941', 860, 140], ['SW2', '2960-24TT', 640, 320], ['SRV1', 'Server-PT', 640, 470], ['SW3', '2960-24TT', 1040, 140], ['PC2', 'PC-PT', 1180, 60], ['SRV2', 'Server-PT', 1180, 240]],
+          links: [['PC1', 'FastEthernet0', 'SW1', 'FastEthernet0/1', 'straight'], ['SW1', 'GigabitEthernet0/1', 'R1', 'GigabitEthernet0/0', 'straight'], ['R1', 'GigabitEthernet0/1', 'R2', 'GigabitEthernet0/0', 'cross'], ['R2', 'GigabitEthernet0/1', 'SW2', 'GigabitEthernet0/1', 'straight'], ['SRV1', 'FastEthernet0', 'SW2', 'FastEthernet0/1', 'straight'], ['R2', 'GigabitEthernet0/2', 'R3', 'GigabitEthernet0/1', 'cross'], ['R3', 'GigabitEthernet0/0', 'SW3', 'GigabitEthernet0/1', 'straight'], ['PC2', 'FastEthernet0', 'SW3', 'FastEthernet0/1', 'straight'], ['SRV2', 'FastEthernet0', 'SW3', 'FastEthernet0/2', 'straight']],
+          cli: {
+            R1: ['conf t', 'hostname R1', 'interface g0/0', 'ip address 192.168.254.1 255.255.255.0', 'no shutdown', 'interface g0/1', 'ip address 172.31.0.1 255.255.0.0', 'no shutdown', 'end'],
+            R2: ['conf t', 'hostname R2', 'interface g0/0', 'ip address 172.31.0.3 255.255.0.0', 'no shutdown', 'interface g0/1', 'ip address 192.168.200.1 255.255.255.0', 'no shutdown', 'interface g0/2', 'ip address 172.30.0.1 255.255.0.0', 'no shutdown', 'end'],
+            R3: ['conf t', 'hostname R3', 'interface g0/0', 'ip address 192.168.20.1 255.255.255.0', 'no shutdown', 'interface g0/1', 'ip address 172.30.0.2 255.255.0.0', 'no shutdown', 'end']
+          },
+          hosts: { PC1: { ip: '192.168.254.10', mask: '255.255.255.0', gw: '192.168.254.1' }, SRV1: { ip: '192.168.200.10', mask: '255.255.255.0', gw: '192.168.200.1' }, PC2: { ip: '192.168.20.10', mask: '255.255.255.0', gw: '192.168.20.1' }, SRV2: { ip: '192.168.20.200', mask: '255.255.255.0', gw: '192.168.20.1' } },
+          notes: [[60, 560, 'R1 : Eth1 192.168.254.1 · Eth2 172.31.0.1   —   R2 : Eth1 172.31.0.3 · Eth2 192.168.200.1 · Eth3 172.30.0.1   —   R3 : Eth1 192.168.20.1 · Eth2 172.30.0.2']]
+        });
+      },
+      tasks: [
+        { label: 'PC1 accède à SRV1', check: function (n) { return n.canPing('PC1', 'SRV1'); } },
+        { label: 'PC1 accède à SRV2', check: function (n) { return n.canPing('PC1', 'SRV2'); } },
+        { label: 'PC2 accède à SRV1', check: function (n) { return n.canPing('PC2', 'SRV1'); } },
+        { label: 'SRV1 accède à SRV2', check: function (n) { return n.canPing('SRV1', 'SRV2'); } },
+        { label: 'Les tables de R1, R2 et R3 contiennent les 6 routes statiques du corrigé', check: function (n) {
+          return LAB.hasRoute(n, 'R1', '192.168.200.0/24', 'S') && LAB.hasRoute(n, 'R1', '192.168.20.0/24', 'S') && LAB.hasRoute(n, 'R2', '192.168.254.0/24', 'S') && LAB.hasRoute(n, 'R2', '192.168.20.0/24', 'S') && LAB.hasRoute(n, 'R3', '192.168.200.0/24', 'S') && LAB.hasRoute(n, 'R3', '192.168.254.0/24', 'S'); } }
+      ],
+      hints: ['Reprends tes tables du DS : chaque route distante (en vert) devient une commande <code>ip route &lt;réseau&gt; &lt;masque&gt; &lt;passerelle&gt;</code>. Les routes connectées (en jaune), IOS les crée tout seul.', 'R1 : 192.168.200.0 et 192.168.20.0 via 172.31.0.3. R3 : 192.168.200.0 et 192.168.254.0 via 172.30.0.1.', 'R2 : <code>ip route 192.168.254.0 255.255.255.0 172.31.0.1</code> et <code>ip route 192.168.20.0 255.255.255.0 172.30.0.2</code>.'],
+      solution: [
+        { dev: 'R1', cli: ['conf t', 'ip route 192.168.200.0 255.255.255.0 172.31.0.3', 'ip route 192.168.20.0 255.255.255.0 172.31.0.3', 'end'] },
+        { dev: 'R2', cli: ['conf t', 'ip route 192.168.254.0 255.255.255.0 172.31.0.1', 'ip route 192.168.20.0 255.255.255.0 172.30.0.2', 'end'] },
+        { dev: 'R3', cli: ['conf t', 'ip route 192.168.200.0 255.255.255.0 172.30.0.1', 'ip route 192.168.254.0 255.255.255.0 172.30.0.1', 'end'] }
+      ],
+      explain: 'Tes tables « format Windows » se traduisent ligne à ligne : une route distante du DS = une commande <code>ip route</code>, les réseaux connectés apparaissent seuls (C dans <code>show ip route</code>). Chaque ping doit fonctionner <b>dans les deux sens</b> : c’est pour ça que R3 doit aussi connaître le réseau de PC1.' }
   ]
   });
 })();
