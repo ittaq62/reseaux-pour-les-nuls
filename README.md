@@ -10,7 +10,19 @@ optionnels et une fiche de révision imprimable.
 - Double-clic sur **« Réseaux pour les nuls »** sur le Bureau (ou sur `lancer.bat`).
 - Le script démarre un petit serveur PowerShell sur `http://localhost:8766` (accessible depuis ce PC uniquement)
   et ouvre la page. Laisser la fenêtre du serveur ouverte (réduite) pendant la révision.
+- Sur Mac (macOS 13 Ventura ou plus récent, puce Apple ou Intel) : double-clic sur **« Réseaux pour les nuls (Mac) »**.
+  Le Terminal s’ouvre (c’est le serveur, même rôle que la fenêtre PowerShell) et la page s’ouvre dans le navigateur.
 - Sans serveur, `web/index.html` s’ouvre aussi directement, mais la progression reste alors dans le navigateur.
+
+## Partager avec des amis
+
+```bash
+python outils/paquet_amis.py
+```
+
+Crée `dist/Reseaux-pour-les-nuls.zip` (Windows + Mac, avec un `LISEZMOI.txt` qui explique le lancement et
+l’autorisation à donner la première fois sur Mac). Ta progression (`sauvegarde/`) n’y est jamais incluse.
+Partage ce zip tel quel : recompressé avec l’Explorateur Windows, l’exécutable Mac perdrait son droit d’exécution.
 
 ## Progression
 
@@ -50,6 +62,9 @@ l’est dans tous les parcours où elle apparaît.
 - `web/js/niveaux/NN-*.js` : questions et labos supplémentaires des niveaux ; `classement.js` donne le niveau des questions du cours.
 - `web/js/labkit.js` : construction des labos, application des solutions et contrôles des objectifs.
 - `outils/pkt_vers_js.py "<dossier des .pkt>"` : régénère `web/js/data/topologies.js` depuis les fichiers Packet Tracer du cours.
+- `outils/mac/` : serveur Mac en Go (équivalent de `serveur.ps1`) ; `python outils/construire_mac.py <go.exe>` recompile
+  l’exécutable universel depuis Windows (il faut Go : https://go.dev/dl/). À refaire seulement si le serveur change,
+  pas quand le contenu de `web/` change.
 - Tests (Node.js) :
 
 ```bash
