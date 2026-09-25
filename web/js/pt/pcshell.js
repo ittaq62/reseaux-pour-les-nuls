@@ -234,7 +234,9 @@
       return out;
     }
     var d = tr.dev, vty = d.cfg.lines.vty || {};
-    if (proto === 'ssh' && (!d.cfg.users.length || vty.login !== 'local')) { out.push('% Connection refused by remote host'); return out; }
+    var tin = vty.transport || 'all';
+    if (tin === 'none' || (proto === 'ssh' && tin === 'telnet') || (proto === 'telnet' && tin === 'ssh')) { out.push('% Connection refused by remote host'); return out; }
+    if (proto === 'ssh' && (!d.cfg.rsa || !d.cfg.users.length || vty.login !== 'local')) { out.push('% Connection refused by remote host'); return out; }
     if (proto === 'telnet') out.push('Open');
     if (proto === 'telnet' && !vty.password && vty.login !== 'local') { out.push('', '', '[Connection to ' + host + ' closed by foreign host]'); return out; }
     var self = this;

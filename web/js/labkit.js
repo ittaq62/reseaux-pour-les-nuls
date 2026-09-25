@@ -156,6 +156,14 @@
     var o = l.a.dev === a && l.a.port === ap ? l.b : l.a;
     return o.dev === b && (!bp || o.port === bp);
   };
+  /* « ssh -l user ip » depuis un PC, puis le mot de passe : la session s'ouvre-t-elle ? */
+  LAB.sshLogin = function (net, pc, ip, user, pw) {
+    var sh = new root.PCShell(net, net.dev(pc));
+    sh.exec('ssh -l ' + user + ' ' + ip);
+    if (!sh.pending) return false;
+    sh.exec(pw);
+    return !!sh.remote;
+  };
   LAB.range = function (prefix, a, b) { var r = []; for (var i = a; i <= b; i++) r.push(prefix + i); return r; };
 
   root.LAB = LAB;

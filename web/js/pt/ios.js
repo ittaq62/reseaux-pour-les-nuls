@@ -717,13 +717,40 @@
   def('config', 'username <WORD> privilege <0-15> password <LINE>', function (a) { addUser(this.dev, { name: a[1], pw: a[5], priv: a[3] }); });
   def('config', 'username <WORD> privilege <0-15> secret <LINE>', function (a) { addUser(this.dev, { name: a[1], pw: a[5], priv: a[3], secret: true }); });
   def('config', 'ip ssh version <1-2>', function (a) { this.dev.cfg.sshVersion = a[3]; });
+  /* clés RSA : il faut un nom d'hôte personnalisé et un nom de domaine (comme sur un vrai IOS) */
+  function rsaReady(s, out) {
+    if (/^(Router|Switch)$/.test(s.dev.hostname)) { out.push('% Please define a hostname other than ' + s.dev.hostname + '.'); return false; }
+    if (!s.dev.cfg.domainName) { out.push('% Please define a domain-name first.'); return false; }
+    return true;
+  }
+  function rsaDone(s, bits, o) {
+    var b = parseInt(bits, 10);
+    if (!(b >= 360 && b <= 4096)) b = 512;
+    o.push('% Generating ' + b + ' bit RSA keys, keys will be non-exportable...[OK]');
+    if (!s.dev.cfg.rsa) o.push('%SSH-5-ENABLED: SSH 1.99 has been enabled');
+    s.dev.cfg.rsa = { bits: b };
+  }
   def('config', 'crypto key generate rsa', function (a, out) {
     var self = this;
-    this.pending = { prompt: 'How many bits in the modulus [512]: ', handle: function (l, o) {
-      o.push('% Generating ' + (l.trim() || '512') + ' bit RSA keys, keys will be non-exportable...[OK]');
-    } };
-    out.push('The name for the keys will be: ' + this.dev.hostname + '.' + (this.dev.cfg.domainName || 'cisco.com'),
+    if (!rsaReady(this, out)) return;
+    this.pending = { prompt: 'How many bits in the modulus [512]: ', handle: function (l, o) { rsaDone(self, l.trim() || '512', o); } };
+    out.push('The name for the keys will be: ' + this.dev.hostname + '.' + this.dev.cfg.domainName,
       'Choose the size of the key modulus in the range of 360 to 4096 for your', '  General Purpose Keys. Choosing a key modulus greater than 512 may take', '  a few minutes.', '');
+  });
+  def('config', 'crypto key generate rsa general-keys modulus <360-4096:size of the key modulus in the range of 360 to 4096>', function (a, out) {
+    if (!rsaReady(this, out)) return;
+    out.push('The name for the keys will be: ' + this.dev.hostname + '.' + this.dev.cfg.domainName, '% The key modulus size is ' + a[a.length - 1] + ' bits');
+    rsaDone(this, a[a.length - 1], out);
+  });
+  def('config', 'crypto key zeroize rsa', function (a, out) {
+    if (this.dev.cfg.rsa) out.push('%SSH-5-DISABLED: SSH 1.99 has been disabled');
+    this.dev.cfg.rsa = null;
+  });
+  showDef('ip ssh', function (a, out) {
+    var r = this.dev.cfg.rsa;
+    out.push('SSH ' + (r ? 'Enabled' : 'Disabled') + ' - version ' + (this.dev.cfg.sshVersion === 2 || this.dev.cfg.sshVersion === '2' ? '2.0' : '1.99'));
+    if (!r) out.push('%Please create RSA keys (of atleast 768 bits size) to enable SSH v2.');
+    out.push('Authentication timeout: 120 secs; Authentication retries: 3');
   });
   def('config', 'ip http server', function () {});
   def('config', 'no ip http server', function () {});
@@ -1210,7 +1237,7 @@
   function showVersion(net, d) {
     var v = iosVersion(d);
     var up = Math.floor((Date.now() - net.bootTime) / 60000);
-    var lines = ['Cisco IOS Software, ' + (d.cat === 'router' ? 'C' + d.model.replace(/\D/g, '') + ' Software (' + (d.model === '1941' ? 'C1900-UNIVERSALK9-M' : 'C' + d.model.replace(/\D/g, '') + '-ADVIPSERVICESK9-M') + ')' : 'C2960 Software (C2960-LANBASEK9-M)') + ', Version ' + v + ', RELEASE SOFTWARE (fc1)',
+    var lines = ['Cisco IOS Software, ' + (d.cat === 'router' ? 'C' + d.model.replace(/\D/g, '') + ' Software (' + (d.model === '1941' ? 'C1900-UNIVERSALK9-M' : 'C' + d.model.replace(/\D/g, '') + '-ADVIPSERVICESK9-M') + ')' : d.cat === 'l3switch' ? '[Denali], Catalyst L3 Switch Software (CAT3K_CAA-UNIVERSALK9-M)' : 'C2960 Software (C2960-LANBASEK9-M)') + ', Version ' + v + ', RELEASE SOFTWARE (fc1)',
       'Technical Support: http://www.cisco.com/techsupport', 'Copyright (c) 1986-2016 by Cisco Systems, Inc.', 'Compiled Wed 23-Mar-16 14:39 by prod_rel_team', '',
       'ROM: System Bootstrap, Version 15.1(4)M5, RELEASE SOFTWARE (fc1)', '',
       d.hostname + ' uptime is ' + up + ' minutes', 'System returned to ROM by power-on', '',
@@ -1723,6 +1750,8 @@
       if (/^end$/.test(l.trim())) return;
       s.exec(l.trim());
     });
+    /* dans un .pkt, « ip ssh version » n'apparaît que si des clés RSA existent déjà */
+    if (d.cfg.sshVersion && !d.cfg.rsa) d.cfg.rsa = { bits: 1024 };
     return s;
   }
   function restoreStartup(net, d, merge) {
