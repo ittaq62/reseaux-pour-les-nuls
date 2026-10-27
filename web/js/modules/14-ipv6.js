@@ -10,7 +10,7 @@
   window.MODULES.push({
   id: 'ipv6', num: 14, icon: '6️⃣', titre: 'IPv6',
   sous: 'Notation, types d’adresses, EUI-64, SLAAC, DHCPv6, routage',
-  source: 'IPv6.pdf (ENI), Exercice-ipv6.pdf, Pratique-IPv6-DHCPv6-01 (+ .pkt)',
+  source: 'IPv6.pdf (ENI), Exercice-ipv6.pdf (numérotation de la version distribuée en octobre), Pratique-IPv6-DHCPv6-01 (+ .pkt)',
   cours: `
 <h3>1. Pourquoi IPv6 ?</h3>
 <p>Il y a plus d’équipements connectés que d’humains : les 2<sup>32</sup> adresses d’IPv4 ne suffisent plus. IPv6 utilise <b>128 bits</b> : 2<sup>128</sup> ≈ 3,4×10<sup>38</sup> adresses. L’attribution est organisée par grands blocs (par continent) pour limiter la taille des tables de routage.</p>
@@ -95,7 +95,7 @@ R1#show ipv6 interface brief    /    show ipv6 route</div>
         { label: '2001:AB76:B8:2::/48', kind: 'pfx6', answer: '2001:ab76:b8::/48' }],
       hints: ['/64 = les 4 premiers blocs ; /48 = les 3 premiers ; /56 = 3 blocs + les 2 premiers caractères du 4e.', 'B2C s’écrit 0B2C : on garde « 0B » et on met « 00 » → 0B00 = B00.'],
       explain: '2001:88:ee80::/64 (le « :: » cachait un bloc 0) ; 2001:ab76:7b78:b00::/56 ; 2001:ab76:b8::/48.' },
-    { id: 'v6-6', type: 'text', q: '<b>Exercice 3</b> — Une entreprise reçoit <code>2001:0688:1f80::/48</code>. Combien de sous-réseaux /64 peut-elle créer ?', kind: 'int', accept: 65536,
+    { id: 'v6-6', type: 'text', q: '<b>Exercice 4</b> — Une entreprise reçoit <code>2001:0688:1f80::/48</code>. Combien de sous-réseaux /64 peut-elle créer ?', kind: 'int', accept: 65536,
       hints: ['64 − 48 = 16 bits de sous-réseau.'], explain: '2<sup>16</sup> = <b>65 536</b> sous-réseaux /64 (ton poly écrit 65 535 : c’est 65 536 valeurs, de 0 à FFFF).' },
     { id: 'v6-7', type: 'match', q: 'Associe chaque type d’adresse à son préfixe.', pairs: [['Link-local', 'FE80::/10'], ['ULA (privée)', 'FC00::/7'], ['Global unicast', '2000::/3'], ['Multicast', 'FF00::/8'], ['Loopback', '::1']],
       hints: ['« FE80 » est l’adresse qu’on voit partout dans ipconfig.'], explain: 'FE80::/10 lien local, FC00::/7 ULA, 2000::/3 globale, FF00::/8 multicast, ::1 loopback.' },
@@ -103,15 +103,15 @@ R1#show ipv6 interface brief    /    show ipv6 route</div>
       hints: ['Seule la globale est routable sur Internet.'], explain: 'Lien local ≈ APIPA, ULA ≈ privé, globale ≈ public, ::1 ≈ loopback.' },
     { id: 'v6-9', type: 'match', q: 'Associe chaque message NDP (ICMPv6) à son rôle.', pairs: [['RS', 'L’hôte demande les infos des routeurs (vers FF02::2)'], ['RA', 'Le routeur annonce sa présence et ses préfixes'], ['NS', 'Demande l’adresse MAC d’un voisin (remplace ARP), sert aussi à la DAD'], ['NA', 'Réponse avec l’adresse MAC']],
       hints: ['R = Router, N = Neighbor ; S = Solicitation (demande), A = Advertisement (annonce).'], explain: 'RS/RA pour l’autoconfiguration, NS/NA pour la résolution d’adresse et la détection de doublons.' },
-    { id: 'v6-10', type: 'text', q: '<b>Exercice 4</b> — adresses lien local EUI-64 :', fields: [
+    { id: 'v6-10', type: 'text', q: '<b>Exercice 5</b> — adresses lien local EUI-64 :', fields: [
         { label: 'MAC 02-00-4D-AB-CD-50 →', kind: 'ip6', answer: 'fe80::4dff:feab:cd50' },
         { label: 'MAC 00-03-FF-18-12-EE →', kind: 'ip6', answer: 'fe80::203:ffff:fe18:12ee' }],
       hints: ['On insère FFFE au milieu, puis on inverse le 7e bit : 02 → 00 et 00 → 02.', '02-00-4D | AB-CD-50 → 0000:4DFF:FEAB:CD50 → FE80::4DFF:FEAB:CD50.'],
       explain: 'fe80::4dff:feab:cd50 (le 02 devient 00, d’où le « :: » plus long) et fe80::203:ffff:fe18:12ee.' },
-    { id: 'v6-11', type: 'text', q: '<b>Exercice 4 (suite)</b> — adresses globales avec le préfixe <code>2B01:D41:C0:4::/64</code> :', fields: [
+    { id: 'v6-11', type: 'text', q: '<b>Exercice 5 (suite)</b> — adresses globales avec le préfixe <code>2B01:D41:C0:4::/64</code> :', fields: [
         { label: 'MAC 02-00-4D-AB-CD-50 →', kind: 'ip6', answer: '2b01:d41:c0:4:0:4dff:feab:cd50' },
         { label: 'MAC 00-03-FF-18-12-EE →', kind: 'ip6', answer: '2b01:d41:c0:4:203:ffff:fe18:12ee' }],
-      hints: ['Même identifiant d’interface, mais on remplace FE80:0:0:0 par le préfixe.'], explain: '2b01:d41:c0:4:0:4dff:feab:cd50 et 2b01:d41:c0:4:203:ffff:fe18:12ee.' },
+      hints: ['Même identifiant d’interface, mais on remplace FE80:0:0:0 par le préfixe.'], explain: '2b01:d41:c0:4:0:4dff:feab:cd50 et 2b01:d41:c0:4:203:ffff:fe18:12ee. Au passage, la feuille écrit le préfixe « 2B01:D41:C0:4/64 » : sans le « :: », ce n’est pas une écriture valide (4 groupes seulement). Il faut lire <b>2B01:D41:C0:4::/64</b>.' },
     { id: 'v6-12', type: 'match', q: 'Indicateurs M et O des annonces RA : quelle méthode ?', pairs: [['M = 0, O = 0', 'SLAAC seul'], ['M = 0, O = 1', 'SLAAC + DHCPv6 sans état'], ['M = 1', 'DHCPv6 avec état']],
       hints: ['O = « Other » : les autres infos (DNS) viennent de DHCPv6. M = « Managed » : l’adresse aussi.'], explain: '<code>ipv6 nd other-config-flag</code> met O à 1 : l’adresse vient du RA, le DNS de DHCPv6.' },
     { id: 'v6-13', type: 'qcm', q: 'Dans la configuration automatique IPv6 de ton TP, quelle est la <b>passerelle par défaut</b> affichée par le PC ?', choices: ['L’adresse globale du routeur', 'L’adresse link-local (FE80::…) du routeur', 'FF02::2', 'Il n’y a pas de passerelle en IPv6'], good: 1,
