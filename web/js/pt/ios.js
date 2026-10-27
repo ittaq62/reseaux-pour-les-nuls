@@ -472,6 +472,19 @@
     return 'noTouch';
   });
   def('priv', 'clear ip nat translation *', function () { this.dev.natTable = []; });
+  /* le simulateur recalcule en continu routes, router-id et élection DR/BDR : il n'y a rien à vider,
+     seuls les messages d'adjacence d'IOS sont reproduits */
+  def('priv', 'clear ip ospf process', function () {
+    var net = this.net, d = this.dev;
+    this.pending = { prompt: 'Reset ALL OSPF processes? [no]: ', handle: function (l, o) {
+      if (!/^\s*y(es)?\s*$/i.test(l)) return;
+      var od = net.ospfData(), full = (od.nbrs[d.name] || []).filter(function (nb) { return ospfState(od, d, nb).indexOf('FULL') === 0; });
+      full.forEach(function (nb) { o.push('%OSPF-5-ADJCHG: Process ' + nb.me.pid + ', Nbr ' + ip(net.ospfRid(nb.dev)) + ' on ' + nb.me.ifc.name + ' from FULL to DOWN, Neighbor Down: Interface down or detached'); });
+      full.forEach(function (nb) { o.push('%OSPF-5-ADJCHG: Process ' + nb.me.pid + ', Nbr ' + ip(net.ospfRid(nb.dev)) + ' on ' + nb.me.ifc.name + ' from LOADING to FULL, Loading Done'); });
+    } };
+    return 'noTouch';
+  });
+  def('priv', 'clear ip route *', function () {});
   def('priv', 'clear arp-cache', function () { this.dev.arp = {}; });
   def('priv', 'clear mac-address-table dynamic', function () { this.dev.macTable = {}; });
   def('priv', 'clear mac address-table dynamic', function () { this.dev.macTable = {}; });
