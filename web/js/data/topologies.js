@@ -12231,5 +12231,3439 @@ window.PT_TOPOS = {
   ],
   "shapes": [],
   "file": "SDN_Version_LAB_1.pkt"
+ },
+ "TP-ARCHI": {
+  "version": "9.0.0.0810",
+  "devices": [
+   {
+    "name": "DEV1",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 135,
+    "y": 89,
+    "mac": "00E0.B08B.919C",
+    "ip": "192.168.1.100",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.1.1",
+    "dns": "192.168.1.11"
+   },
+   {
+    "name": "DEV2",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 239,
+    "y": 86,
+    "mac": "00D0.D36E.1AC4",
+    "ip": "192.168.1.101",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.1.1",
+    "dns": "192.168.1.11"
+   },
+   {
+    "name": "DEV-SERV",
+    "type": "Server",
+    "model": "Server-PT",
+    "x": 334,
+    "y": 93,
+    "mac": "0090.2156.33A1",
+    "ip": "192.168.1.10",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.1.1",
+    "dns": "",
+    "services": {
+     "dhcp": {
+      "on": false,
+      "pools": [
+       {
+        "name": "serverPool",
+        "network": "192.168.1.0",
+        "mask": "255.255.255.0",
+        "gateway": "0.0.0.0",
+        "dns": "0.0.0.0",
+        "start": "192.168.1.0",
+        "end": "192.168.2.255",
+        "max": 512,
+        "tftp": "0.0.0.0",
+        "wlc": "0.0.0.0"
+       }
+      ]
+     },
+     "dns": {
+      "on": false,
+      "records": []
+     },
+     "http": {
+      "on": true
+     }
+    }
+   },
+   {
+    "name": "DEV",
+    "type": "Switch",
+    "model": "2960-24TT",
+    "x": 408,
+    "y": 290,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Switch",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/1",
+     "interface FastEthernet0/2",
+     "interface FastEthernet0/3",
+     "interface FastEthernet0/4",
+     "interface FastEthernet0/5",
+     "interface FastEthernet0/6",
+     "interface FastEthernet0/7",
+     "interface FastEthernet0/8",
+     "interface FastEthernet0/9",
+     "interface FastEthernet0/10",
+     "interface FastEthernet0/11",
+     "interface FastEthernet0/12",
+     "interface FastEthernet0/13",
+     "interface FastEthernet0/14",
+     "interface FastEthernet0/15",
+     "interface FastEthernet0/16",
+     "interface FastEthernet0/17",
+     "interface FastEthernet0/18",
+     "interface FastEthernet0/19",
+     "interface FastEthernet0/20",
+     "interface FastEthernet0/21",
+     "interface FastEthernet0/22",
+     "interface FastEthernet0/23",
+     "interface FastEthernet0/24",
+     "interface GigabitEthernet0/1",
+     "interface GigabitEthernet0/2",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "line con 0",
+     "line vty 0 4",
+     " login",
+     "line vty 5 15",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/1",
+      "mac": "000A.4171.5C01"
+     },
+     {
+      "name": "FastEthernet0/2",
+      "mac": "000A.4171.5C02"
+     },
+     {
+      "name": "FastEthernet0/3",
+      "mac": "000A.4171.5C03"
+     },
+     {
+      "name": "FastEthernet0/4",
+      "mac": "000A.4171.5C04"
+     },
+     {
+      "name": "FastEthernet0/5",
+      "mac": "000A.4171.5C05"
+     },
+     {
+      "name": "FastEthernet0/6",
+      "mac": "000A.4171.5C06"
+     },
+     {
+      "name": "FastEthernet0/7",
+      "mac": "000A.4171.5C07"
+     },
+     {
+      "name": "FastEthernet0/8",
+      "mac": "000A.4171.5C08"
+     },
+     {
+      "name": "FastEthernet0/9",
+      "mac": "000A.4171.5C09"
+     },
+     {
+      "name": "FastEthernet0/10",
+      "mac": "000A.4171.5C0A"
+     },
+     {
+      "name": "FastEthernet0/11",
+      "mac": "000A.4171.5C0B"
+     },
+     {
+      "name": "FastEthernet0/12",
+      "mac": "000A.4171.5C0C"
+     },
+     {
+      "name": "FastEthernet0/13",
+      "mac": "000A.4171.5C0D"
+     },
+     {
+      "name": "FastEthernet0/14",
+      "mac": "000A.4171.5C0E"
+     },
+     {
+      "name": "FastEthernet0/15",
+      "mac": "000A.4171.5C0F"
+     },
+     {
+      "name": "FastEthernet0/16",
+      "mac": "000A.4171.5C10"
+     },
+     {
+      "name": "FastEthernet0/17",
+      "mac": "000A.4171.5C11"
+     },
+     {
+      "name": "FastEthernet0/18",
+      "mac": "000A.4171.5C12"
+     },
+     {
+      "name": "FastEthernet0/19",
+      "mac": "000A.4171.5C13"
+     },
+     {
+      "name": "FastEthernet0/20",
+      "mac": "000A.4171.5C14"
+     },
+     {
+      "name": "FastEthernet0/21",
+      "mac": "000A.4171.5C15"
+     },
+     {
+      "name": "FastEthernet0/22",
+      "mac": "000A.4171.5C16"
+     },
+     {
+      "name": "FastEthernet0/23",
+      "mac": "000A.4171.5C17"
+     },
+     {
+      "name": "FastEthernet0/24",
+      "mac": "000A.4171.5C18"
+     },
+     {
+      "name": "GigabitEthernet0/1",
+      "mac": "000A.4171.5C19"
+     },
+     {
+      "name": "GigabitEthernet0/2",
+      "mac": "000A.4171.5C1A"
+     }
+    ]
+   },
+   {
+    "name": "R-DEV",
+    "type": "Router",
+    "model": "2901",
+    "x": 554,
+    "y": 376,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Router",
+     "spanning-tree mode pvst",
+     "interface GigabitEthernet0/0",
+     " ip address 192.168.1.1 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface GigabitEthernet0/1",
+     " no ip address",
+     " duplex auto",
+     " speed auto",
+     " shutdown",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "GigabitEthernet0/0",
+      "mac": "0009.7CB9.A101"
+     },
+     {
+      "name": "GigabitEthernet0/1",
+      "mac": "0009.7CB9.A102"
+     }
+    ]
+   },
+   {
+    "name": "DEV-DNS",
+    "type": "Server",
+    "model": "Server-PT",
+    "x": 448,
+    "y": 92,
+    "mac": "00E0.B066.8EE2",
+    "ip": "192.168.1.11",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "",
+    "dns": "",
+    "services": {
+     "dhcp": {
+      "on": false,
+      "pools": [
+       {
+        "name": "serverPool",
+        "network": "192.168.1.0",
+        "mask": "255.255.255.0",
+        "gateway": "0.0.0.0",
+        "dns": "0.0.0.0",
+        "start": "192.168.1.0",
+        "end": "192.168.2.255",
+        "max": 512,
+        "tftp": "0.0.0.0",
+        "wlc": "0.0.0.0"
+       }
+      ]
+     },
+     "dns": {
+      "on": true,
+      "records": [
+       {
+        "name": "www.dev.com",
+        "type": "A",
+        "value": "192.168.1.10"
+       }
+      ]
+     },
+     "http": {
+      "on": true
+     }
+    }
+   },
+   {
+    "name": "D1",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 1223,
+    "y": 69,
+    "mac": "0004.9A9E.E9DC",
+    "ip": "192.168.1.100",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.1.1",
+    "dns": "192.168.1.11"
+   },
+   {
+    "name": "D2",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 1290,
+    "y": 69,
+    "mac": "0040.0B83.C9B3",
+    "ip": "192.168.1.101",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.1.1",
+    "dns": "192.168.1.11"
+   },
+   {
+    "name": "R-DM",
+    "type": "Router",
+    "model": "2901",
+    "x": 1000,
+    "y": 378,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Router",
+     "spanning-tree mode pvst",
+     "interface GigabitEthernet0/0",
+     " ip address 192.168.1.1 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface GigabitEthernet0/1",
+     " no ip address",
+     " duplex auto",
+     " speed auto",
+     " shutdown",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "GigabitEthernet0/0",
+      "mac": "0090.0CB5.DE3C"
+     },
+     {
+      "name": "GigabitEthernet0/1",
+      "mac": "000D.BD8B.4EE2"
+     }
+    ]
+   },
+   {
+    "name": "DATAMOTION",
+    "type": "Switch",
+    "model": "2960-24TT",
+    "x": 1208,
+    "y": 314,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Switch",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/1",
+     "interface FastEthernet0/2",
+     "interface FastEthernet0/3",
+     "interface FastEthernet0/4",
+     "interface FastEthernet0/5",
+     "interface FastEthernet0/6",
+     "interface FastEthernet0/7",
+     "interface FastEthernet0/8",
+     "interface FastEthernet0/9",
+     "interface FastEthernet0/10",
+     "interface FastEthernet0/11",
+     "interface FastEthernet0/12",
+     "interface FastEthernet0/13",
+     "interface FastEthernet0/14",
+     "interface FastEthernet0/15",
+     "interface FastEthernet0/16",
+     "interface FastEthernet0/17",
+     "interface FastEthernet0/18",
+     "interface FastEthernet0/19",
+     "interface FastEthernet0/20",
+     "interface FastEthernet0/21",
+     "interface FastEthernet0/22",
+     "interface FastEthernet0/23",
+     "interface FastEthernet0/24",
+     "interface GigabitEthernet0/1",
+     "interface GigabitEthernet0/2",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "line con 0",
+     "line vty 0 4",
+     " login",
+     "line vty 5 15",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/1",
+      "mac": "00D0.BA77.0E7B"
+     },
+     {
+      "name": "FastEthernet0/2",
+      "mac": "0009.7C7C.4156"
+     },
+     {
+      "name": "FastEthernet0/3",
+      "mac": "0005.5E30.08D1"
+     },
+     {
+      "name": "FastEthernet0/4",
+      "mac": "000A.41B6.0C88"
+     },
+     {
+      "name": "FastEthernet0/5",
+      "mac": "0040.0BDB.6DE3"
+     },
+     {
+      "name": "FastEthernet0/6",
+      "mac": "0040.0BB4.6403"
+     },
+     {
+      "name": "FastEthernet0/7",
+      "mac": "000A.4188.EB88"
+     },
+     {
+      "name": "FastEthernet0/8",
+      "mac": "0050.0F31.ED02"
+     },
+     {
+      "name": "FastEthernet0/9",
+      "mac": "0001.42E4.5CD7"
+     },
+     {
+      "name": "FastEthernet0/10",
+      "mac": "0090.2106.E69C"
+     },
+     {
+      "name": "FastEthernet0/11",
+      "mac": "00D0.FF81.3CAC"
+     },
+     {
+      "name": "FastEthernet0/12",
+      "mac": "0001.96D4.6365"
+     },
+     {
+      "name": "FastEthernet0/13",
+      "mac": "0002.16A6.880C"
+     },
+     {
+      "name": "FastEthernet0/14",
+      "mac": "00E0.B0E3.E7DC"
+     },
+     {
+      "name": "FastEthernet0/15",
+      "mac": "0030.A3E9.1A85"
+     },
+     {
+      "name": "FastEthernet0/16",
+      "mac": "0001.C94B.BB97"
+     },
+     {
+      "name": "FastEthernet0/17",
+      "mac": "00E0.A3A7.8AD7"
+     },
+     {
+      "name": "FastEthernet0/18",
+      "mac": "00D0.BAE4.AB1B"
+     },
+     {
+      "name": "FastEthernet0/19",
+      "mac": "0001.9681.C2C2"
+     },
+     {
+      "name": "FastEthernet0/20",
+      "mac": "0002.4A6C.54BA"
+     },
+     {
+      "name": "FastEthernet0/21",
+      "mac": "0000.0CC1.6751"
+     },
+     {
+      "name": "FastEthernet0/22",
+      "mac": "0040.0BDE.1980"
+     },
+     {
+      "name": "FastEthernet0/23",
+      "mac": "00D0.FF46.E4C5"
+     },
+     {
+      "name": "FastEthernet0/24",
+      "mac": "0090.2B31.55BD"
+     },
+     {
+      "name": "GigabitEthernet0/1",
+      "mac": "0010.11BA.3C52"
+     },
+     {
+      "name": "GigabitEthernet0/2",
+      "mac": "0040.0BA7.CD6B"
+     }
+    ]
+   },
+   {
+    "name": "DNS",
+    "type": "Server",
+    "model": "Server-PT",
+    "x": 1422,
+    "y": 75,
+    "mac": "0006.2A55.0AB2",
+    "ip": "192.168.1.11",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "",
+    "dns": "",
+    "services": {
+     "dhcp": {
+      "on": false,
+      "pools": [
+       {
+        "name": "serverPool",
+        "network": "192.168.1.0",
+        "mask": "255.255.255.0",
+        "gateway": "0.0.0.0",
+        "dns": "0.0.0.0",
+        "start": "192.168.1.0",
+        "end": "192.168.2.255",
+        "max": 512,
+        "tftp": "0.0.0.0",
+        "wlc": "0.0.0.0"
+       }
+      ]
+     },
+     "dns": {
+      "on": true,
+      "records": [
+       {
+        "name": "www.datamotion.fr",
+        "type": "A",
+        "value": "192.168.1.10"
+       }
+      ]
+     },
+     "http": {
+      "on": true
+     }
+    }
+   },
+   {
+    "name": "DMWS",
+    "type": "Server",
+    "model": "Server-PT",
+    "x": 1360,
+    "y": 73,
+    "mac": "00E0.A372.9A62",
+    "ip": "192.168.1.10",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.1.1",
+    "dns": "",
+    "services": {
+     "dhcp": {
+      "on": false,
+      "pools": [
+       {
+        "name": "serverPool",
+        "network": "192.168.1.0",
+        "mask": "255.255.255.0",
+        "gateway": "0.0.0.0",
+        "dns": "0.0.0.0",
+        "start": "192.168.1.0",
+        "end": "192.168.2.255",
+        "max": 512,
+        "tftp": "0.0.0.0",
+        "wlc": "0.0.0.0"
+       }
+      ]
+     },
+     "dns": {
+      "on": false,
+      "records": []
+     },
+     "http": {
+      "on": true
+     }
+    }
+   }
+  ],
+  "links": [
+   [
+    "DEV2",
+    "FastEthernet0",
+    "DEV",
+    "FastEthernet0/1",
+    "straight"
+   ],
+   [
+    "DEV-SERV",
+    "FastEthernet0",
+    "DEV",
+    "FastEthernet0/3",
+    "straight"
+   ],
+   [
+    "R-DEV",
+    "GigabitEthernet0/0",
+    "DEV",
+    "GigabitEthernet0/1",
+    "straight"
+   ],
+   [
+    "DEV",
+    "FastEthernet0/4",
+    "DEV-DNS",
+    "FastEthernet0",
+    "straight"
+   ],
+   [
+    "DEV",
+    "FastEthernet0/2",
+    "DEV1",
+    "FastEthernet0",
+    "straight"
+   ],
+   [
+    "DATAMOTION",
+    "FastEthernet0/2",
+    "D1",
+    "FastEthernet0",
+    "straight"
+   ],
+   [
+    "D2",
+    "FastEthernet0",
+    "DATAMOTION",
+    "FastEthernet0/1",
+    "straight"
+   ],
+   [
+    "R-DM",
+    "GigabitEthernet0/0",
+    "DATAMOTION",
+    "GigabitEthernet0/1",
+    "straight"
+   ],
+   [
+    "DMWS",
+    "FastEthernet0",
+    "DATAMOTION",
+    "FastEthernet0/3",
+    "straight"
+   ],
+   [
+    "DATAMOTION",
+    "FastEthernet0/4",
+    "DNS",
+    "FastEthernet0",
+    "straight"
+   ]
+  ],
+  "notes": [
+   {
+    "x": 753,
+    "y": 452,
+    "text": "Objectifs :\nInterconnecter les 2 sites sans modifier le plan d'adressage\nChaque administrateur (DEV et DATAMOTION) est responsable de la configuration de son routeur et ses serveurs WEB et DNS\nLes postes de DEV doivent être capables de se connecter au serveur DMWS avec l'URL : www.datamotion.fr\nLes postes de DATAMOTION se connectent au serveur web de DEV (DEV-SERV) avec l'URL www.dev.com"
+   }
+  ],
+  "shapes": [],
+  "file": "TP1.pkt"
+ },
+ "RIP-Depart": {
+  "version": "9.0.0.0810",
+  "devices": [
+   {
+    "name": "PB1",
+    "type": "Router",
+    "model": "Router-PT",
+    "x": 572,
+    "y": 93,
+    "config": [
+     "hostname PB1",
+     "interface FastEthernet0/0",
+     " ip address 192.168.10.4 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface FastEthernet1/0",
+     " no ip address",
+     " duplex auto",
+     " speed auto",
+     " shutdown",
+     "interface Serial2/0",
+     " no ip address",
+     " clock rate 2000000",
+     " shutdown",
+     "interface Serial3/0",
+     " no ip address",
+     " clock rate 2000000",
+     " shutdown",
+     "interface FastEthernet4/0",
+     " ip address 192.168.0.1 255.255.255.0",
+     "interface FastEthernet5/0",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/0",
+      "mac": "0001.9629.A9DC"
+     },
+     {
+      "name": "FastEthernet1/0",
+      "mac": "0004.9AE6.B799"
+     },
+     {
+      "name": "Serial2/0",
+      "mac": "0001.9629.A9DC",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial3/0",
+      "mac": "0001.9629.A9DC",
+      "kind": "serial"
+     },
+     {
+      "name": "FastEthernet4/0",
+      "mac": "00D0.58A8.1007",
+      "kind": "fiber"
+     },
+     {
+      "name": "FastEthernet5/0",
+      "mac": "0040.0B8E.29A8",
+      "kind": "fiber"
+     }
+    ]
+   },
+   {
+    "name": "PB2",
+    "type": "Router",
+    "model": "Router-PT",
+    "x": 682,
+    "y": 135,
+    "config": [
+     "hostname Router",
+     "interface FastEthernet0/0",
+     " ip address 192.168.11.1 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface FastEthernet1/0",
+     " no ip address",
+     " duplex auto",
+     " speed auto",
+     " shutdown",
+     "interface Serial2/0",
+     " no ip address",
+     " clock rate 2000000",
+     " shutdown",
+     "interface Serial3/0",
+     " no ip address",
+     " clock rate 2000000",
+     " shutdown",
+     "interface FastEthernet4/0",
+     " ip address 192.168.0.2 255.255.255.0",
+     "interface FastEthernet5/0",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/0",
+      "mac": "0090.0C48.6EAE"
+     },
+     {
+      "name": "FastEthernet1/0",
+      "mac": "0050.0F00.963B"
+     },
+     {
+      "name": "Serial2/0",
+      "mac": "0090.0C48.6EAE",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial3/0",
+      "mac": "0090.0C48.6EAE",
+      "kind": "serial"
+     },
+     {
+      "name": "FastEthernet4/0",
+      "mac": "0001.6326.C603",
+      "kind": "fiber"
+     },
+     {
+      "name": "FastEthernet5/0",
+      "mac": "0001.97A5.2A3D",
+      "kind": "fiber"
+     }
+    ]
+   },
+   {
+    "name": "RB1E2",
+    "type": "Router",
+    "model": "1841",
+    "x": 372,
+    "y": 33,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Router",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/0",
+     " ip address 192.168.3.254 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface FastEthernet0/1",
+     " ip address 192.168.10.3 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/0",
+      "mac": "000A.41B4.1B01"
+     },
+     {
+      "name": "FastEthernet0/1",
+      "mac": "000A.41B4.1B02"
+     }
+    ]
+   },
+   {
+    "name": "RB1E1",
+    "type": "Router",
+    "model": "1841",
+    "x": 284,
+    "y": 151,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Router",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/0",
+     " ip address 192.168.2.254 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface FastEthernet0/1",
+     " ip address 192.168.10.2 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/0",
+      "mac": "00D0.D30E.8601"
+     },
+     {
+      "name": "FastEthernet0/1",
+      "mac": "00D0.D30E.8602"
+     }
+    ]
+   },
+   {
+    "name": "RB1E0",
+    "type": "Router",
+    "model": "1841",
+    "x": 278,
+    "y": 280,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Router",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/0",
+     " ip address 192.168.1.254 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface FastEthernet0/1",
+     " ip address 192.168.10.1 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/0",
+      "mac": "00E0.A3AA.4101"
+     },
+     {
+      "name": "FastEthernet0/1",
+      "mac": "00E0.A3AA.4102"
+     }
+    ]
+   },
+   {
+    "name": "RB2",
+    "type": "Router",
+    "model": "1841",
+    "x": 768,
+    "y": 236,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Router",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/0",
+     " ip address 192.168.11.2 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface FastEthernet0/1",
+     " ip address 192.168.4.254 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/0",
+      "mac": "0001.42DA.AA01"
+     },
+     {
+      "name": "FastEthernet0/1",
+      "mac": "0001.42DA.AA02"
+     }
+    ]
+   },
+   {
+    "name": "B1E0",
+    "type": "Switch",
+    "model": "2950-24",
+    "x": 171,
+    "y": 318,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Switch",
+     "mls qos",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/1",
+     "interface FastEthernet0/2",
+     "interface FastEthernet0/3",
+     "interface FastEthernet0/4",
+     "interface FastEthernet0/5",
+     "interface FastEthernet0/6",
+     "interface FastEthernet0/7",
+     "interface FastEthernet0/8",
+     "interface FastEthernet0/9",
+     "interface FastEthernet0/10",
+     "interface FastEthernet0/11",
+     "interface FastEthernet0/12",
+     "interface FastEthernet0/13",
+     "interface FastEthernet0/14",
+     "interface FastEthernet0/15",
+     "interface FastEthernet0/16",
+     "interface FastEthernet0/17",
+     "interface FastEthernet0/18",
+     "interface FastEthernet0/19",
+     "interface FastEthernet0/20",
+     "interface FastEthernet0/21",
+     "interface FastEthernet0/22",
+     "interface FastEthernet0/23",
+     "interface FastEthernet0/24",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "line con 0",
+     "line vty 0 4",
+     " login",
+     "line vty 5 15",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/1",
+      "mac": "0060.3E25.0001"
+     },
+     {
+      "name": "FastEthernet0/2",
+      "mac": "0060.3E25.0002"
+     },
+     {
+      "name": "FastEthernet0/3",
+      "mac": "0060.3E25.0003"
+     },
+     {
+      "name": "FastEthernet0/4",
+      "mac": "0060.3E25.0004"
+     },
+     {
+      "name": "FastEthernet0/5",
+      "mac": "0060.3E25.0005"
+     },
+     {
+      "name": "FastEthernet0/6",
+      "mac": "0060.3E25.0006"
+     },
+     {
+      "name": "FastEthernet0/7",
+      "mac": "0060.3E25.0007"
+     },
+     {
+      "name": "FastEthernet0/8",
+      "mac": "0060.3E25.0008"
+     },
+     {
+      "name": "FastEthernet0/9",
+      "mac": "0060.3E25.0009"
+     },
+     {
+      "name": "FastEthernet0/10",
+      "mac": "0060.3E25.000A"
+     },
+     {
+      "name": "FastEthernet0/11",
+      "mac": "0060.3E25.000B"
+     },
+     {
+      "name": "FastEthernet0/12",
+      "mac": "0060.3E25.000C"
+     },
+     {
+      "name": "FastEthernet0/13",
+      "mac": "0060.3E25.000D"
+     },
+     {
+      "name": "FastEthernet0/14",
+      "mac": "0060.3E25.000E"
+     },
+     {
+      "name": "FastEthernet0/15",
+      "mac": "0060.3E25.000F"
+     },
+     {
+      "name": "FastEthernet0/16",
+      "mac": "0060.3E25.0010"
+     },
+     {
+      "name": "FastEthernet0/17",
+      "mac": "0060.3E25.0011"
+     },
+     {
+      "name": "FastEthernet0/18",
+      "mac": "0060.3E25.0012"
+     },
+     {
+      "name": "FastEthernet0/19",
+      "mac": "0060.3E25.0013"
+     },
+     {
+      "name": "FastEthernet0/20",
+      "mac": "0060.3E25.0014"
+     },
+     {
+      "name": "FastEthernet0/21",
+      "mac": "0060.3E25.0015"
+     },
+     {
+      "name": "FastEthernet0/22",
+      "mac": "0060.3E25.0016"
+     },
+     {
+      "name": "FastEthernet0/23",
+      "mac": "0060.3E25.0017"
+     },
+     {
+      "name": "FastEthernet0/24",
+      "mac": "0060.3E25.0018"
+     }
+    ]
+   },
+   {
+    "name": "B1E1",
+    "type": "Switch",
+    "model": "2950-24",
+    "x": 161,
+    "y": 147,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Switch",
+     "mls qos",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/1",
+     "interface FastEthernet0/2",
+     "interface FastEthernet0/3",
+     "interface FastEthernet0/4",
+     "interface FastEthernet0/5",
+     "interface FastEthernet0/6",
+     "interface FastEthernet0/7",
+     "interface FastEthernet0/8",
+     "interface FastEthernet0/9",
+     "interface FastEthernet0/10",
+     "interface FastEthernet0/11",
+     "interface FastEthernet0/12",
+     "interface FastEthernet0/13",
+     "interface FastEthernet0/14",
+     "interface FastEthernet0/15",
+     "interface FastEthernet0/16",
+     "interface FastEthernet0/17",
+     "interface FastEthernet0/18",
+     "interface FastEthernet0/19",
+     "interface FastEthernet0/20",
+     "interface FastEthernet0/21",
+     "interface FastEthernet0/22",
+     "interface FastEthernet0/23",
+     "interface FastEthernet0/24",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "line con 0",
+     "line vty 0 4",
+     " login",
+     "line vty 5 15",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/1",
+      "mac": "0009.7C22.9801"
+     },
+     {
+      "name": "FastEthernet0/2",
+      "mac": "0009.7C22.9802"
+     },
+     {
+      "name": "FastEthernet0/3",
+      "mac": "0009.7C22.9803"
+     },
+     {
+      "name": "FastEthernet0/4",
+      "mac": "0009.7C22.9804"
+     },
+     {
+      "name": "FastEthernet0/5",
+      "mac": "0009.7C22.9805"
+     },
+     {
+      "name": "FastEthernet0/6",
+      "mac": "0009.7C22.9806"
+     },
+     {
+      "name": "FastEthernet0/7",
+      "mac": "0009.7C22.9807"
+     },
+     {
+      "name": "FastEthernet0/8",
+      "mac": "0009.7C22.9808"
+     },
+     {
+      "name": "FastEthernet0/9",
+      "mac": "0009.7C22.9809"
+     },
+     {
+      "name": "FastEthernet0/10",
+      "mac": "0009.7C22.980A"
+     },
+     {
+      "name": "FastEthernet0/11",
+      "mac": "0009.7C22.980B"
+     },
+     {
+      "name": "FastEthernet0/12",
+      "mac": "0009.7C22.980C"
+     },
+     {
+      "name": "FastEthernet0/13",
+      "mac": "0009.7C22.980D"
+     },
+     {
+      "name": "FastEthernet0/14",
+      "mac": "0009.7C22.980E"
+     },
+     {
+      "name": "FastEthernet0/15",
+      "mac": "0009.7C22.980F"
+     },
+     {
+      "name": "FastEthernet0/16",
+      "mac": "0009.7C22.9810"
+     },
+     {
+      "name": "FastEthernet0/17",
+      "mac": "0009.7C22.9811"
+     },
+     {
+      "name": "FastEthernet0/18",
+      "mac": "0009.7C22.9812"
+     },
+     {
+      "name": "FastEthernet0/19",
+      "mac": "0009.7C22.9813"
+     },
+     {
+      "name": "FastEthernet0/20",
+      "mac": "0009.7C22.9814"
+     },
+     {
+      "name": "FastEthernet0/21",
+      "mac": "0009.7C22.9815"
+     },
+     {
+      "name": "FastEthernet0/22",
+      "mac": "0009.7C22.9816"
+     },
+     {
+      "name": "FastEthernet0/23",
+      "mac": "0009.7C22.9817"
+     },
+     {
+      "name": "FastEthernet0/24",
+      "mac": "0009.7C22.9818"
+     }
+    ]
+   },
+   {
+    "name": "B1E2",
+    "type": "Switch",
+    "model": "2950-24",
+    "x": 159,
+    "y": 66,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Switch",
+     "mls qos",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/1",
+     "interface FastEthernet0/2",
+     "interface FastEthernet0/3",
+     "interface FastEthernet0/4",
+     "interface FastEthernet0/5",
+     "interface FastEthernet0/6",
+     "interface FastEthernet0/7",
+     "interface FastEthernet0/8",
+     "interface FastEthernet0/9",
+     "interface FastEthernet0/10",
+     "interface FastEthernet0/11",
+     "interface FastEthernet0/12",
+     "interface FastEthernet0/13",
+     "interface FastEthernet0/14",
+     "interface FastEthernet0/15",
+     "interface FastEthernet0/16",
+     "interface FastEthernet0/17",
+     "interface FastEthernet0/18",
+     "interface FastEthernet0/19",
+     "interface FastEthernet0/20",
+     "interface FastEthernet0/21",
+     "interface FastEthernet0/22",
+     "interface FastEthernet0/23",
+     "interface FastEthernet0/24",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "line con 0",
+     "line vty 0 4",
+     " login",
+     "line vty 5 15",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/1",
+      "mac": "00D0.97C7.5801"
+     },
+     {
+      "name": "FastEthernet0/2",
+      "mac": "00D0.97C7.5802"
+     },
+     {
+      "name": "FastEthernet0/3",
+      "mac": "00D0.97C7.5803"
+     },
+     {
+      "name": "FastEthernet0/4",
+      "mac": "00D0.97C7.5804"
+     },
+     {
+      "name": "FastEthernet0/5",
+      "mac": "00D0.97C7.5805"
+     },
+     {
+      "name": "FastEthernet0/6",
+      "mac": "00D0.97C7.5806"
+     },
+     {
+      "name": "FastEthernet0/7",
+      "mac": "00D0.97C7.5807"
+     },
+     {
+      "name": "FastEthernet0/8",
+      "mac": "00D0.97C7.5808"
+     },
+     {
+      "name": "FastEthernet0/9",
+      "mac": "00D0.97C7.5809"
+     },
+     {
+      "name": "FastEthernet0/10",
+      "mac": "00D0.97C7.580A"
+     },
+     {
+      "name": "FastEthernet0/11",
+      "mac": "00D0.97C7.580B"
+     },
+     {
+      "name": "FastEthernet0/12",
+      "mac": "00D0.97C7.580C"
+     },
+     {
+      "name": "FastEthernet0/13",
+      "mac": "00D0.97C7.580D"
+     },
+     {
+      "name": "FastEthernet0/14",
+      "mac": "00D0.97C7.580E"
+     },
+     {
+      "name": "FastEthernet0/15",
+      "mac": "00D0.97C7.580F"
+     },
+     {
+      "name": "FastEthernet0/16",
+      "mac": "00D0.97C7.5810"
+     },
+     {
+      "name": "FastEthernet0/17",
+      "mac": "00D0.97C7.5811"
+     },
+     {
+      "name": "FastEthernet0/18",
+      "mac": "00D0.97C7.5812"
+     },
+     {
+      "name": "FastEthernet0/19",
+      "mac": "00D0.97C7.5813"
+     },
+     {
+      "name": "FastEthernet0/20",
+      "mac": "00D0.97C7.5814"
+     },
+     {
+      "name": "FastEthernet0/21",
+      "mac": "00D0.97C7.5815"
+     },
+     {
+      "name": "FastEthernet0/22",
+      "mac": "00D0.97C7.5816"
+     },
+     {
+      "name": "FastEthernet0/23",
+      "mac": "00D0.97C7.5817"
+     },
+     {
+      "name": "FastEthernet0/24",
+      "mac": "00D0.97C7.5818"
+     }
+    ]
+   },
+   {
+    "name": "B2",
+    "type": "Switch",
+    "model": "2950-24",
+    "x": 775,
+    "y": 317,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Switch",
+     "mls qos",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/1",
+     "interface FastEthernet0/2",
+     "interface FastEthernet0/3",
+     "interface FastEthernet0/4",
+     "interface FastEthernet0/5",
+     "interface FastEthernet0/6",
+     "interface FastEthernet0/7",
+     "interface FastEthernet0/8",
+     "interface FastEthernet0/9",
+     "interface FastEthernet0/10",
+     "interface FastEthernet0/11",
+     "interface FastEthernet0/12",
+     "interface FastEthernet0/13",
+     "interface FastEthernet0/14",
+     "interface FastEthernet0/15",
+     "interface FastEthernet0/16",
+     "interface FastEthernet0/17",
+     "interface FastEthernet0/18",
+     "interface FastEthernet0/19",
+     "interface FastEthernet0/20",
+     "interface FastEthernet0/21",
+     "interface FastEthernet0/22",
+     "interface FastEthernet0/23",
+     "interface FastEthernet0/24",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "line con 0",
+     "line vty 0 4",
+     " login",
+     "line vty 5 15",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/1",
+      "mac": "0001.C703.6301"
+     },
+     {
+      "name": "FastEthernet0/2",
+      "mac": "0001.C703.6302"
+     },
+     {
+      "name": "FastEthernet0/3",
+      "mac": "0001.C703.6303"
+     },
+     {
+      "name": "FastEthernet0/4",
+      "mac": "0001.C703.6304"
+     },
+     {
+      "name": "FastEthernet0/5",
+      "mac": "0001.C703.6305"
+     },
+     {
+      "name": "FastEthernet0/6",
+      "mac": "0001.C703.6306"
+     },
+     {
+      "name": "FastEthernet0/7",
+      "mac": "0001.C703.6307"
+     },
+     {
+      "name": "FastEthernet0/8",
+      "mac": "0001.C703.6308"
+     },
+     {
+      "name": "FastEthernet0/9",
+      "mac": "0001.C703.6309"
+     },
+     {
+      "name": "FastEthernet0/10",
+      "mac": "0001.C703.630A"
+     },
+     {
+      "name": "FastEthernet0/11",
+      "mac": "0001.C703.630B"
+     },
+     {
+      "name": "FastEthernet0/12",
+      "mac": "0001.C703.630C"
+     },
+     {
+      "name": "FastEthernet0/13",
+      "mac": "0001.C703.630D"
+     },
+     {
+      "name": "FastEthernet0/14",
+      "mac": "0001.C703.630E"
+     },
+     {
+      "name": "FastEthernet0/15",
+      "mac": "0001.C703.630F"
+     },
+     {
+      "name": "FastEthernet0/16",
+      "mac": "0001.C703.6310"
+     },
+     {
+      "name": "FastEthernet0/17",
+      "mac": "0001.C703.6311"
+     },
+     {
+      "name": "FastEthernet0/18",
+      "mac": "0001.C703.6312"
+     },
+     {
+      "name": "FastEthernet0/19",
+      "mac": "0001.C703.6313"
+     },
+     {
+      "name": "FastEthernet0/20",
+      "mac": "0001.C703.6314"
+     },
+     {
+      "name": "FastEthernet0/21",
+      "mac": "0001.C703.6315"
+     },
+     {
+      "name": "FastEthernet0/22",
+      "mac": "0001.C703.6316"
+     },
+     {
+      "name": "FastEthernet0/23",
+      "mac": "0001.C703.6317"
+     },
+     {
+      "name": "FastEthernet0/24",
+      "mac": "0001.C703.6318"
+     }
+    ]
+   },
+   {
+    "name": "PC0",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 176,
+    "y": 18,
+    "mac": "0090.214A.A655",
+    "ip": "192.168.3.1",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.3.254",
+    "dns": ""
+   },
+   {
+    "name": "PC1",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 108,
+    "y": 18,
+    "mac": "0010.112B.9DD5",
+    "ip": "",
+    "mask": "",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "",
+    "dns": ""
+   },
+   {
+    "name": "PC2",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 78,
+    "y": 146,
+    "mac": "00D0.FF6E.93EA",
+    "ip": "",
+    "mask": "",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "",
+    "dns": ""
+   },
+   {
+    "name": "PC3",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 78,
+    "y": 221,
+    "mac": "0060.5CA4.4AB3",
+    "ip": "",
+    "mask": "",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "",
+    "dns": ""
+   },
+   {
+    "name": "PC4",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 50,
+    "y": 366,
+    "mac": "0006.2A61.7204",
+    "ip": "",
+    "mask": "",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "",
+    "dns": ""
+   },
+   {
+    "name": "PC5",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 156,
+    "y": 429,
+    "mac": "00E0.F957.A9B5",
+    "ip": "",
+    "mask": "",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "",
+    "dns": ""
+   },
+   {
+    "name": "BB",
+    "type": "Switch",
+    "model": "2950-24",
+    "x": 431,
+    "y": 133,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Switch",
+     "mls qos",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/1",
+     "interface FastEthernet0/2",
+     "interface FastEthernet0/3",
+     "interface FastEthernet0/4",
+     "interface FastEthernet0/5",
+     "interface FastEthernet0/6",
+     "interface FastEthernet0/7",
+     "interface FastEthernet0/8",
+     "interface FastEthernet0/9",
+     "interface FastEthernet0/10",
+     "interface FastEthernet0/11",
+     "interface FastEthernet0/12",
+     "interface FastEthernet0/13",
+     "interface FastEthernet0/14",
+     "interface FastEthernet0/15",
+     "interface FastEthernet0/16",
+     "interface FastEthernet0/17",
+     "interface FastEthernet0/18",
+     "interface FastEthernet0/19",
+     "interface FastEthernet0/20",
+     "interface FastEthernet0/21",
+     "interface FastEthernet0/22",
+     "interface FastEthernet0/23",
+     "interface FastEthernet0/24",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "line con 0",
+     "line vty 0 4",
+     " login",
+     "line vty 5 15",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/1",
+      "mac": "000D.BD87.7A01"
+     },
+     {
+      "name": "FastEthernet0/2",
+      "mac": "000D.BD87.7A02"
+     },
+     {
+      "name": "FastEthernet0/3",
+      "mac": "000D.BD87.7A03"
+     },
+     {
+      "name": "FastEthernet0/4",
+      "mac": "000D.BD87.7A04"
+     },
+     {
+      "name": "FastEthernet0/5",
+      "mac": "000D.BD87.7A05"
+     },
+     {
+      "name": "FastEthernet0/6",
+      "mac": "000D.BD87.7A06"
+     },
+     {
+      "name": "FastEthernet0/7",
+      "mac": "000D.BD87.7A07"
+     },
+     {
+      "name": "FastEthernet0/8",
+      "mac": "000D.BD87.7A08"
+     },
+     {
+      "name": "FastEthernet0/9",
+      "mac": "000D.BD87.7A09"
+     },
+     {
+      "name": "FastEthernet0/10",
+      "mac": "000D.BD87.7A0A"
+     },
+     {
+      "name": "FastEthernet0/11",
+      "mac": "000D.BD87.7A0B"
+     },
+     {
+      "name": "FastEthernet0/12",
+      "mac": "000D.BD87.7A0C"
+     },
+     {
+      "name": "FastEthernet0/13",
+      "mac": "000D.BD87.7A0D"
+     },
+     {
+      "name": "FastEthernet0/14",
+      "mac": "000D.BD87.7A0E"
+     },
+     {
+      "name": "FastEthernet0/15",
+      "mac": "000D.BD87.7A0F"
+     },
+     {
+      "name": "FastEthernet0/16",
+      "mac": "000D.BD87.7A10"
+     },
+     {
+      "name": "FastEthernet0/17",
+      "mac": "000D.BD87.7A11"
+     },
+     {
+      "name": "FastEthernet0/18",
+      "mac": "000D.BD87.7A12"
+     },
+     {
+      "name": "FastEthernet0/19",
+      "mac": "000D.BD87.7A13"
+     },
+     {
+      "name": "FastEthernet0/20",
+      "mac": "000D.BD87.7A14"
+     },
+     {
+      "name": "FastEthernet0/21",
+      "mac": "000D.BD87.7A15"
+     },
+     {
+      "name": "FastEthernet0/22",
+      "mac": "000D.BD87.7A16"
+     },
+     {
+      "name": "FastEthernet0/23",
+      "mac": "000D.BD87.7A17"
+     },
+     {
+      "name": "FastEthernet0/24",
+      "mac": "000D.BD87.7A18"
+     }
+    ]
+   },
+   {
+    "name": "PC6",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 1034,
+    "y": 293,
+    "mac": "0090.0C32.1759",
+    "ip": "192.168.4.1",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.4.254",
+    "dns": ""
+   },
+   {
+    "name": "RouterInactif",
+    "type": "Router",
+    "model": "ISR4331",
+    "x": 562,
+    "y": 255,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Router",
+     "spanning-tree mode pvst",
+     "interface GigabitEthernet0/0/0",
+     " ip address 192.168.10.5 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface GigabitEthernet0/0/1",
+     " ip address 192.168.4.253 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface GigabitEthernet0/0/2",
+     " no ip address",
+     " duplex auto",
+     " speed auto",
+     " shutdown",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "GigabitEthernet0/0/0",
+      "mac": "0004.9AA3.0601"
+     },
+     {
+      "name": "GigabitEthernet0/0/1",
+      "mac": "0004.9AA3.0602"
+     },
+     {
+      "name": "GigabitEthernet0/0/2",
+      "mac": "0004.9AA3.0603"
+     }
+    ]
+   }
+  ],
+  "links": [
+   [
+    "PB1",
+    "FastEthernet4/0",
+    "PB2",
+    "FastEthernet4/0",
+    "fiber"
+   ],
+   [
+    "PC0",
+    "FastEthernet0",
+    "B1E2",
+    "FastEthernet0/1",
+    "straight"
+   ],
+   [
+    "PC1",
+    "FastEthernet0",
+    "B1E2",
+    "FastEthernet0/2",
+    "straight"
+   ],
+   [
+    "PC2",
+    "FastEthernet0",
+    "B1E1",
+    "FastEthernet0/1",
+    "straight"
+   ],
+   [
+    "PC3",
+    "FastEthernet0",
+    "B1E1",
+    "FastEthernet0/2",
+    "straight"
+   ],
+   [
+    "PC4",
+    "FastEthernet0",
+    "B1E0",
+    "FastEthernet0/1",
+    "straight"
+   ],
+   [
+    "PC5",
+    "FastEthernet0",
+    "B1E0",
+    "FastEthernet0/2",
+    "straight"
+   ],
+   [
+    "B1E2",
+    "FastEthernet0/3",
+    "RB1E2",
+    "FastEthernet0/0",
+    "straight"
+   ],
+   [
+    "B1E1",
+    "FastEthernet0/3",
+    "RB1E1",
+    "FastEthernet0/0",
+    "straight"
+   ],
+   [
+    "RB1E0",
+    "FastEthernet0/0",
+    "B1E0",
+    "FastEthernet0/3",
+    "straight"
+   ],
+   [
+    "RB1E2",
+    "FastEthernet0/1",
+    "BB",
+    "FastEthernet0/1",
+    "straight"
+   ],
+   [
+    "RB1E1",
+    "FastEthernet0/1",
+    "BB",
+    "FastEthernet0/2",
+    "straight"
+   ],
+   [
+    "RB1E0",
+    "FastEthernet0/1",
+    "BB",
+    "FastEthernet0/3",
+    "straight"
+   ],
+   [
+    "PB1",
+    "FastEthernet0/0",
+    "BB",
+    "FastEthernet0/4",
+    "straight"
+   ],
+   [
+    "PB2",
+    "FastEthernet0/0",
+    "RB2",
+    "FastEthernet0/0",
+    "cross"
+   ],
+   [
+    "B2",
+    "FastEthernet0/1",
+    "RB2",
+    "FastEthernet0/1",
+    "straight"
+   ],
+   [
+    "B2",
+    "FastEthernet0/11",
+    "PC6",
+    "FastEthernet0",
+    "straight"
+   ],
+   [
+    "BB",
+    "FastEthernet0/5",
+    "RouterInactif",
+    "GigabitEthernet0/0/0",
+    "straight"
+   ],
+   [
+    "B2",
+    "FastEthernet0/2",
+    "RouterInactif",
+    "GigabitEthernet0/0/1",
+    "straight"
+   ]
+  ],
+  "notes": [],
+  "shapes": [],
+  "file": "ROUTAGE-RIP-Depart.pkt"
+ },
+ "OSPF1-Depart": {
+  "version": "9.0.0.0810",
+  "devices": [
+   {
+    "name": "PC-A",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 258,
+    "y": 343,
+    "mac": "00E0.8FDD.18CD",
+    "ip": "192.168.0.1",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.0.254",
+    "dns": ""
+   },
+   {
+    "name": "Router A",
+    "type": "Router",
+    "model": "1841",
+    "x": 412,
+    "y": 344,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Routeur-A",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/0",
+     " no ip address",
+     " duplex auto",
+     " speed auto",
+     " shutdown",
+     "interface FastEthernet0/1",
+     " ip address 192.168.0.254 255.255.255.0",
+     " ip nat inside",
+     " duplex auto",
+     " speed auto",
+     "interface Serial0/0/0",
+     " ip address 20.6.6.2 255.255.255.252",
+     " ip nat outside",
+     "interface Serial0/0/1",
+     " no ip address",
+     " clock rate 2000000",
+     " shutdown",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip nat inside source list 1 interface Serial0/0/0 overload",
+     "ip classless",
+     "ip route 0.0.0.0 0.0.0.0 20.6.6.1",
+     "access-list 1 permit 192.168.0.0 0.0.0.255",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/0",
+      "mac": "0002.1797.7601"
+     },
+     {
+      "name": "FastEthernet0/1",
+      "mac": "0002.1797.7602"
+     },
+     {
+      "name": "Serial0/0/0",
+      "mac": "0002.1797.7601",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial0/0/1",
+      "mac": "0002.1797.7601",
+      "kind": "serial"
+     }
+    ]
+   },
+   {
+    "name": "Serv-B",
+    "type": "Server",
+    "model": "Server-PT",
+    "x": 572,
+    "y": 193,
+    "mac": "00D0.FF03.752D",
+    "ip": "172.11.0.1",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "172.11.0.254",
+    "dns": "",
+    "services": {
+     "dhcp": {
+      "on": false,
+      "pools": [
+       {
+        "name": "serverPool",
+        "network": "172.11.0.0",
+        "mask": "255.255.255.0",
+        "gateway": "0.0.0.0",
+        "dns": "0.0.0.0",
+        "start": "172.11.0.0",
+        "end": "172.11.0.255",
+        "max": 256,
+        "tftp": "0.0.0.0",
+        "wlc": "0.0.0.0"
+       }
+      ]
+     },
+     "dns": {
+      "on": false,
+      "records": []
+     },
+     "http": {
+      "on": true
+     }
+    }
+   },
+   {
+    "name": "PC-F1",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 1318,
+    "y": 436,
+    "mac": "0007.EC04.A8D5",
+    "ip": "192.168.0.1",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.0.254",
+    "dns": ""
+   },
+   {
+    "name": "Router F",
+    "type": "Router",
+    "model": "1841",
+    "x": 1128,
+    "y": 328,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Routeur-F",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/0",
+     " ip address 192.168.0.254 255.255.255.0",
+     " ip nat inside",
+     " duplex auto",
+     " speed auto",
+     "interface FastEthernet0/1",
+     " no ip address",
+     " duplex auto",
+     " speed auto",
+     " shutdown",
+     "interface Serial0/0/0",
+     " ip address 20.0.0.1 255.255.255.252",
+     " ip nat outside",
+     " clock rate 2000000",
+     "interface Serial0/0/1",
+     " no ip address",
+     " clock rate 2000000",
+     " shutdown",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip nat inside source list 1 interface Serial0/0/0 overload",
+     "ip classless",
+     "ip route 0.0.0.0 0.0.0.0 20.0.0.2",
+     "access-list 1 permit 192.168.0.0 0.0.0.255",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/0",
+      "mac": "0030.F2E5.E701"
+     },
+     {
+      "name": "FastEthernet0/1",
+      "mac": "0030.F2E5.E702"
+     },
+     {
+      "name": "Serial0/0/0",
+      "mac": "0030.F2E5.E701",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial0/0/1",
+      "mac": "0030.F2E5.E701",
+      "kind": "serial"
+     }
+    ]
+   },
+   {
+    "name": "Serv-E",
+    "type": "Server",
+    "model": "Server-PT",
+    "x": 970,
+    "y": 509,
+    "mac": "00D0.BCC1.673A",
+    "ip": "172.12.0.1",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "172.12.0.254",
+    "dns": "",
+    "services": {
+     "dhcp": {
+      "on": false,
+      "pools": [
+       {
+        "name": "serverPool",
+        "network": "172.12.0.0",
+        "mask": "255.255.255.0",
+        "gateway": "0.0.0.0",
+        "dns": "0.0.0.0",
+        "start": "172.12.0.0",
+        "end": "172.12.0.255",
+        "max": 256,
+        "tftp": "0.0.0.0",
+        "wlc": "0.0.0.0"
+       }
+      ]
+     },
+     "dns": {
+      "on": false,
+      "records": []
+     },
+     "http": {
+      "on": true
+     }
+    }
+   },
+   {
+    "name": "Switch0",
+    "type": "Switch",
+    "model": "2960-24TT",
+    "x": 1279,
+    "y": 329,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Switch",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/1",
+     "interface FastEthernet0/2",
+     "interface FastEthernet0/3",
+     "interface FastEthernet0/4",
+     "interface FastEthernet0/5",
+     "interface FastEthernet0/6",
+     "interface FastEthernet0/7",
+     "interface FastEthernet0/8",
+     "interface FastEthernet0/9",
+     "interface FastEthernet0/10",
+     "interface FastEthernet0/11",
+     "interface FastEthernet0/12",
+     "interface FastEthernet0/13",
+     "interface FastEthernet0/14",
+     "interface FastEthernet0/15",
+     "interface FastEthernet0/16",
+     "interface FastEthernet0/17",
+     "interface FastEthernet0/18",
+     "interface FastEthernet0/19",
+     "interface FastEthernet0/20",
+     "interface FastEthernet0/21",
+     "interface FastEthernet0/22",
+     "interface FastEthernet0/23",
+     "interface FastEthernet0/24",
+     "interface GigabitEthernet0/1",
+     "interface GigabitEthernet0/2",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "line con 0",
+     "line vty 0 4",
+     " login",
+     "line vty 5 15",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/1",
+      "mac": "00D0.BC2D.0E01"
+     },
+     {
+      "name": "FastEthernet0/2",
+      "mac": "00D0.BC2D.0E02"
+     },
+     {
+      "name": "FastEthernet0/3",
+      "mac": "00D0.BC2D.0E03"
+     },
+     {
+      "name": "FastEthernet0/4",
+      "mac": "00D0.BC2D.0E04"
+     },
+     {
+      "name": "FastEthernet0/5",
+      "mac": "00D0.BC2D.0E05"
+     },
+     {
+      "name": "FastEthernet0/6",
+      "mac": "00D0.BC2D.0E06"
+     },
+     {
+      "name": "FastEthernet0/7",
+      "mac": "00D0.BC2D.0E07"
+     },
+     {
+      "name": "FastEthernet0/8",
+      "mac": "00D0.BC2D.0E08"
+     },
+     {
+      "name": "FastEthernet0/9",
+      "mac": "00D0.BC2D.0E09"
+     },
+     {
+      "name": "FastEthernet0/10",
+      "mac": "00D0.BC2D.0E0A"
+     },
+     {
+      "name": "FastEthernet0/11",
+      "mac": "00D0.BC2D.0E0B"
+     },
+     {
+      "name": "FastEthernet0/12",
+      "mac": "00D0.BC2D.0E0C"
+     },
+     {
+      "name": "FastEthernet0/13",
+      "mac": "00D0.BC2D.0E0D"
+     },
+     {
+      "name": "FastEthernet0/14",
+      "mac": "00D0.BC2D.0E0E"
+     },
+     {
+      "name": "FastEthernet0/15",
+      "mac": "00D0.BC2D.0E0F"
+     },
+     {
+      "name": "FastEthernet0/16",
+      "mac": "00D0.BC2D.0E10"
+     },
+     {
+      "name": "FastEthernet0/17",
+      "mac": "00D0.BC2D.0E11"
+     },
+     {
+      "name": "FastEthernet0/18",
+      "mac": "00D0.BC2D.0E12"
+     },
+     {
+      "name": "FastEthernet0/19",
+      "mac": "00D0.BC2D.0E13"
+     },
+     {
+      "name": "FastEthernet0/20",
+      "mac": "00D0.BC2D.0E14"
+     },
+     {
+      "name": "FastEthernet0/21",
+      "mac": "00D0.BC2D.0E15"
+     },
+     {
+      "name": "FastEthernet0/22",
+      "mac": "00D0.BC2D.0E16"
+     },
+     {
+      "name": "FastEthernet0/23",
+      "mac": "00D0.BC2D.0E17"
+     },
+     {
+      "name": "FastEthernet0/24",
+      "mac": "00D0.BC2D.0E18"
+     },
+     {
+      "name": "GigabitEthernet0/1",
+      "mac": "00D0.BC2D.0E19"
+     },
+     {
+      "name": "GigabitEthernet0/2",
+      "mac": "00D0.BC2D.0E1A"
+     }
+    ]
+   },
+   {
+    "name": "Router B",
+    "type": "Router",
+    "model": "2901",
+    "x": 586,
+    "y": 347,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Routeur-B",
+     "spanning-tree mode pvst",
+     "interface GigabitEthernet0/0",
+     " no ip address",
+     " duplex auto",
+     " speed auto",
+     " shutdown",
+     "interface GigabitEthernet0/1",
+     " ip address 172.11.0.254 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface Serial0/0/0",
+     " ip address 20.6.6.1 255.255.255.252",
+     " clock rate 2000000",
+     "interface Serial0/0/1",
+     " ip address 20.5.5.2 255.255.255.252",
+     "interface Serial0/1/0",
+     " ip address 20.4.4.2 255.255.255.252",
+     "interface Serial0/1/1",
+     " ip address 20.2.2.2 255.255.255.252",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "GigabitEthernet0/0",
+      "mac": "0030.A330.1701"
+     },
+     {
+      "name": "GigabitEthernet0/1",
+      "mac": "0030.A330.1702"
+     },
+     {
+      "name": "Serial0/0/0",
+      "mac": "0030.A330.1701",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial0/0/1",
+      "mac": "0030.A330.1701",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial0/1/0",
+      "mac": "0030.A330.1701",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial0/1/1",
+      "mac": "0030.A330.1701",
+      "kind": "serial"
+     }
+    ]
+   },
+   {
+    "name": "Router C",
+    "type": "Router",
+    "model": "2901",
+    "x": 776,
+    "y": 262,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Routeur-C",
+     "spanning-tree mode pvst",
+     "interface GigabitEthernet0/0",
+     " no ip address",
+     " duplex auto",
+     " speed auto",
+     " shutdown",
+     "interface GigabitEthernet0/1",
+     " no ip address",
+     " duplex auto",
+     " speed auto",
+     " shutdown",
+     "interface Serial0/0/0",
+     " ip address 20.1.1.2 255.255.255.252",
+     "interface Serial0/0/1",
+     " ip address 20.5.5.1 255.255.255.252",
+     " clock rate 2000000",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "GigabitEthernet0/0",
+      "mac": "0001.64B3.E001"
+     },
+     {
+      "name": "GigabitEthernet0/1",
+      "mac": "0001.64B3.E002"
+     },
+     {
+      "name": "Serial0/0/0",
+      "mac": "0001.64B3.E001",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial0/0/1",
+      "mac": "0001.64B3.E001",
+      "kind": "serial"
+     }
+    ]
+   },
+   {
+    "name": "Router D",
+    "type": "Router",
+    "model": "2901",
+    "x": 778,
+    "y": 459,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Routeur-D",
+     "spanning-tree mode pvst",
+     "interface GigabitEthernet0/0",
+     " no ip address",
+     " duplex auto",
+     " speed auto",
+     " shutdown",
+     "interface GigabitEthernet0/1",
+     " no ip address",
+     " duplex auto",
+     " speed auto",
+     " shutdown",
+     "interface Serial0/0/0",
+     " no ip address",
+     " clock rate 2000000",
+     " shutdown",
+     "interface Serial0/0/1",
+     " ip address 20.3.3.2 255.255.255.252",
+     "interface Serial0/1/0",
+     " ip address 20.4.4.1 255.255.255.252",
+     " clock rate 2000000",
+     "interface Serial0/1/1",
+     " no ip address",
+     " clock rate 2000000",
+     " shutdown",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "GigabitEthernet0/0",
+      "mac": "0060.3E97.E701"
+     },
+     {
+      "name": "GigabitEthernet0/1",
+      "mac": "0060.3E97.E702"
+     },
+     {
+      "name": "Serial0/0/0",
+      "mac": "0060.3E97.E701",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial0/0/1",
+      "mac": "0060.3E97.E701",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial0/1/0",
+      "mac": "0060.3E97.E701",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial0/1/1",
+      "mac": "0060.3E97.E701",
+      "kind": "serial"
+     }
+    ]
+   },
+   {
+    "name": "Router E",
+    "type": "Router",
+    "model": "2901",
+    "x": 954,
+    "y": 342,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Routeur-E",
+     "spanning-tree mode pvst",
+     "interface GigabitEthernet0/0",
+     " no ip address",
+     " duplex auto",
+     " speed auto",
+     " shutdown",
+     "interface GigabitEthernet0/1",
+     " ip address 172.12.0.254 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface Serial0/0/0",
+     " ip address 20.0.0.2 255.255.255.252",
+     "interface Serial0/0/1",
+     " ip address 20.3.3.1 255.255.255.252",
+     " clock rate 2000000",
+     "interface Serial0/1/0",
+     " ip address 20.1.1.1 255.255.255.252",
+     " clock rate 2000000",
+     "interface Serial0/1/1",
+     " ip address 20.2.2.1 255.255.255.252",
+     " clock rate 2000000",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "GigabitEthernet0/0",
+      "mac": "0001.4289.C101"
+     },
+     {
+      "name": "GigabitEthernet0/1",
+      "mac": "0001.4289.C102"
+     },
+     {
+      "name": "Serial0/0/0",
+      "mac": "0001.4289.C101",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial0/0/1",
+      "mac": "0001.4289.C101",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial0/1/0",
+      "mac": "0001.4289.C101",
+      "kind": "serial"
+     },
+     {
+      "name": "Serial0/1/1",
+      "mac": "0001.4289.C101",
+      "kind": "serial"
+     }
+    ]
+   },
+   {
+    "name": "PC-F2",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 1406,
+    "y": 269,
+    "mac": "000B.BE06.8CE7",
+    "ip": "192.168.0.2",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.0.254",
+    "dns": ""
+   }
+  ],
+  "links": [
+   [
+    "PC-A",
+    "FastEthernet0",
+    "Router A",
+    "FastEthernet0/1",
+    "cross"
+   ],
+   [
+    "Router F",
+    "FastEthernet0/0",
+    "Switch0",
+    "FastEthernet0/24",
+    "straight"
+   ],
+   [
+    "PC-F1",
+    "FastEthernet0",
+    "Switch0",
+    "FastEthernet0/1",
+    "straight"
+   ],
+   [
+    "Router A",
+    "Serial0/0/0",
+    "Router B",
+    "Serial0/0/0",
+    "serial"
+   ],
+   [
+    "Router B",
+    "Serial0/1/0",
+    "Router D",
+    "Serial0/1/0",
+    "serial"
+   ],
+   [
+    "Router B",
+    "Serial0/0/1",
+    "Router C",
+    "Serial0/0/1",
+    "serial"
+   ],
+   [
+    "Router C",
+    "Serial0/0/0",
+    "Router E",
+    "Serial0/1/0",
+    "serial"
+   ],
+   [
+    "Router D",
+    "Serial0/0/1",
+    "Router E",
+    "Serial0/0/1",
+    "serial"
+   ],
+   [
+    "Router B",
+    "Serial0/1/1",
+    "Router E",
+    "Serial0/1/1",
+    "serial"
+   ],
+   [
+    "Router E",
+    "Serial0/0/0",
+    "Router F",
+    "Serial0/0/0",
+    "serial"
+   ],
+   [
+    "Serv-E",
+    "FastEthernet0",
+    "Router E",
+    "GigabitEthernet0/1",
+    "cross"
+   ],
+   [
+    "Serv-B",
+    "FastEthernet0",
+    "Router B",
+    "GigabitEthernet0/1",
+    "cross"
+   ],
+   [
+    "Switch0",
+    "FastEthernet0/2",
+    "PC-F2",
+    "FastEthernet0",
+    "straight"
+   ]
+  ],
+  "notes": [
+   {
+    "x": 940,
+    "y": 569,
+    "text": "172.12.0.1"
+   },
+   {
+    "x": 580,
+    "y": 118,
+    "text": "172.11.0.1"
+   },
+   {
+    "x": 217,
+    "y": 382,
+    "text": "192.168.0.1"
+   },
+   {
+    "x": 1284,
+    "y": 478,
+    "text": "192.168.0.1"
+   },
+   {
+    "x": 1374,
+    "y": 302,
+    "text": "192.168.0.2"
+   }
+  ],
+  "shapes": [],
+  "file": "OSPF1-Depart.pkt"
+ },
+ "TP-DHCP": {
+  "version": "9.0.0.0810",
+  "devices": [
+   {
+    "name": "Switch0",
+    "type": "Switch",
+    "model": "2960-24TT",
+    "x": 498,
+    "y": 222,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Switch",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/1",
+     "interface FastEthernet0/2",
+     "interface FastEthernet0/3",
+     "interface FastEthernet0/4",
+     "interface FastEthernet0/5",
+     "interface FastEthernet0/6",
+     "interface FastEthernet0/7",
+     "interface FastEthernet0/8",
+     "interface FastEthernet0/9",
+     "interface FastEthernet0/10",
+     "interface FastEthernet0/11",
+     "interface FastEthernet0/12",
+     "interface FastEthernet0/13",
+     "interface FastEthernet0/14",
+     "interface FastEthernet0/15",
+     "interface FastEthernet0/16",
+     "interface FastEthernet0/17",
+     "interface FastEthernet0/18",
+     "interface FastEthernet0/19",
+     "interface FastEthernet0/20",
+     "interface FastEthernet0/21",
+     "interface FastEthernet0/22",
+     "interface FastEthernet0/23",
+     "interface FastEthernet0/24",
+     "interface GigabitEthernet0/1",
+     "interface GigabitEthernet0/2",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "line con 0",
+     "line vty 0 4",
+     " login",
+     "line vty 5 15",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/1",
+      "mac": "000A.41B7.0301"
+     },
+     {
+      "name": "FastEthernet0/2",
+      "mac": "000A.41B7.0302"
+     },
+     {
+      "name": "FastEthernet0/3",
+      "mac": "000A.41B7.0303"
+     },
+     {
+      "name": "FastEthernet0/4",
+      "mac": "000A.41B7.0304"
+     },
+     {
+      "name": "FastEthernet0/5",
+      "mac": "000A.41B7.0305"
+     },
+     {
+      "name": "FastEthernet0/6",
+      "mac": "000A.41B7.0306"
+     },
+     {
+      "name": "FastEthernet0/7",
+      "mac": "000A.41B7.0307"
+     },
+     {
+      "name": "FastEthernet0/8",
+      "mac": "000A.41B7.0308"
+     },
+     {
+      "name": "FastEthernet0/9",
+      "mac": "000A.41B7.0309"
+     },
+     {
+      "name": "FastEthernet0/10",
+      "mac": "000A.41B7.030A"
+     },
+     {
+      "name": "FastEthernet0/11",
+      "mac": "000A.41B7.030B"
+     },
+     {
+      "name": "FastEthernet0/12",
+      "mac": "000A.41B7.030C"
+     },
+     {
+      "name": "FastEthernet0/13",
+      "mac": "000A.41B7.030D"
+     },
+     {
+      "name": "FastEthernet0/14",
+      "mac": "000A.41B7.030E"
+     },
+     {
+      "name": "FastEthernet0/15",
+      "mac": "000A.41B7.030F"
+     },
+     {
+      "name": "FastEthernet0/16",
+      "mac": "000A.41B7.0310"
+     },
+     {
+      "name": "FastEthernet0/17",
+      "mac": "000A.41B7.0311"
+     },
+     {
+      "name": "FastEthernet0/18",
+      "mac": "000A.41B7.0312"
+     },
+     {
+      "name": "FastEthernet0/19",
+      "mac": "000A.41B7.0313"
+     },
+     {
+      "name": "FastEthernet0/20",
+      "mac": "000A.41B7.0314"
+     },
+     {
+      "name": "FastEthernet0/21",
+      "mac": "000A.41B7.0315"
+     },
+     {
+      "name": "FastEthernet0/22",
+      "mac": "000A.41B7.0316"
+     },
+     {
+      "name": "FastEthernet0/23",
+      "mac": "000A.41B7.0317"
+     },
+     {
+      "name": "FastEthernet0/24",
+      "mac": "000A.41B7.0318"
+     },
+     {
+      "name": "GigabitEthernet0/1",
+      "mac": "000A.41B7.0319"
+     },
+     {
+      "name": "GigabitEthernet0/2",
+      "mac": "000A.41B7.031A"
+     }
+    ]
+   },
+   {
+    "name": "Switch1",
+    "type": "Switch",
+    "model": "2960-24TT",
+    "x": 765,
+    "y": 245,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Switch",
+     "spanning-tree mode pvst",
+     "interface FastEthernet0/1",
+     "interface FastEthernet0/2",
+     "interface FastEthernet0/3",
+     "interface FastEthernet0/4",
+     "interface FastEthernet0/5",
+     "interface FastEthernet0/6",
+     "interface FastEthernet0/7",
+     "interface FastEthernet0/8",
+     "interface FastEthernet0/9",
+     "interface FastEthernet0/10",
+     "interface FastEthernet0/11",
+     "interface FastEthernet0/12",
+     "interface FastEthernet0/13",
+     "interface FastEthernet0/14",
+     "interface FastEthernet0/15",
+     "interface FastEthernet0/16",
+     "interface FastEthernet0/17",
+     "interface FastEthernet0/18",
+     "interface FastEthernet0/19",
+     "interface FastEthernet0/20",
+     "interface FastEthernet0/21",
+     "interface FastEthernet0/22",
+     "interface FastEthernet0/23",
+     "interface FastEthernet0/24",
+     "interface GigabitEthernet0/1",
+     "interface GigabitEthernet0/2",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "line con 0",
+     "line vty 0 4",
+     " login",
+     "line vty 5 15",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "FastEthernet0/1",
+      "mac": "0000.0C9E.6901"
+     },
+     {
+      "name": "FastEthernet0/2",
+      "mac": "0000.0C9E.6902"
+     },
+     {
+      "name": "FastEthernet0/3",
+      "mac": "0000.0C9E.6903"
+     },
+     {
+      "name": "FastEthernet0/4",
+      "mac": "0000.0C9E.6904"
+     },
+     {
+      "name": "FastEthernet0/5",
+      "mac": "0000.0C9E.6905"
+     },
+     {
+      "name": "FastEthernet0/6",
+      "mac": "0000.0C9E.6906"
+     },
+     {
+      "name": "FastEthernet0/7",
+      "mac": "0000.0C9E.6907"
+     },
+     {
+      "name": "FastEthernet0/8",
+      "mac": "0000.0C9E.6908"
+     },
+     {
+      "name": "FastEthernet0/9",
+      "mac": "0000.0C9E.6909"
+     },
+     {
+      "name": "FastEthernet0/10",
+      "mac": "0000.0C9E.690A"
+     },
+     {
+      "name": "FastEthernet0/11",
+      "mac": "0000.0C9E.690B"
+     },
+     {
+      "name": "FastEthernet0/12",
+      "mac": "0000.0C9E.690C"
+     },
+     {
+      "name": "FastEthernet0/13",
+      "mac": "0000.0C9E.690D"
+     },
+     {
+      "name": "FastEthernet0/14",
+      "mac": "0000.0C9E.690E"
+     },
+     {
+      "name": "FastEthernet0/15",
+      "mac": "0000.0C9E.690F"
+     },
+     {
+      "name": "FastEthernet0/16",
+      "mac": "0000.0C9E.6910"
+     },
+     {
+      "name": "FastEthernet0/17",
+      "mac": "0000.0C9E.6911"
+     },
+     {
+      "name": "FastEthernet0/18",
+      "mac": "0000.0C9E.6912"
+     },
+     {
+      "name": "FastEthernet0/19",
+      "mac": "0000.0C9E.6913"
+     },
+     {
+      "name": "FastEthernet0/20",
+      "mac": "0000.0C9E.6914"
+     },
+     {
+      "name": "FastEthernet0/21",
+      "mac": "0000.0C9E.6915"
+     },
+     {
+      "name": "FastEthernet0/22",
+      "mac": "0000.0C9E.6916"
+     },
+     {
+      "name": "FastEthernet0/23",
+      "mac": "0000.0C9E.6917"
+     },
+     {
+      "name": "FastEthernet0/24",
+      "mac": "0000.0C9E.6918"
+     },
+     {
+      "name": "GigabitEthernet0/1",
+      "mac": "0000.0C9E.6919"
+     },
+     {
+      "name": "GigabitEthernet0/2",
+      "mac": "0000.0C9E.691A"
+     }
+    ]
+   },
+   {
+    "name": "Router0",
+    "type": "Router",
+    "model": "2901",
+    "x": 646,
+    "y": 166,
+    "vlans": [
+     [
+      1,
+      "default"
+     ]
+    ],
+    "config": [
+     "hostname Router",
+     "spanning-tree mode pvst",
+     "interface GigabitEthernet0/0",
+     " ip address 192.168.1.1 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface GigabitEthernet0/1",
+     " ip address 192.168.2.1 255.255.255.0",
+     " duplex auto",
+     " speed auto",
+     "interface Vlan1",
+     " no ip address",
+     " shutdown",
+     "ip classless",
+     "line con 0",
+     "line aux 0",
+     "line vty 0 4",
+     " login"
+    ],
+    "ifaces": [
+     {
+      "name": "GigabitEthernet0/0",
+      "mac": "0004.9A5D.2801"
+     },
+     {
+      "name": "GigabitEthernet0/1",
+      "mac": "0004.9A5D.2802"
+     }
+    ]
+   },
+   {
+    "name": "PC0",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 228,
+    "y": 369,
+    "mac": "0060.47C8.5962",
+    "ip": "192.168.1.100",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.1.1",
+    "dns": ""
+   },
+   {
+    "name": "Server0",
+    "type": "Server",
+    "model": "Server-PT",
+    "x": 352,
+    "y": 361,
+    "mac": "0002.17DB.C110",
+    "ip": "192.168.1.10",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.1.1",
+    "dns": "",
+    "services": {
+     "dhcp": {
+      "on": false,
+      "pools": [
+       {
+        "name": "serverPool",
+        "network": "192.168.1.0",
+        "mask": "255.255.255.0",
+        "gateway": "0.0.0.0",
+        "dns": "0.0.0.0",
+        "start": "192.168.1.0",
+        "end": "192.168.2.255",
+        "max": 512,
+        "tftp": "0.0.0.0",
+        "wlc": "0.0.0.0"
+       }
+      ]
+     },
+     "dns": {
+      "on": false,
+      "records": []
+     },
+     "http": {
+      "on": true
+     }
+    }
+   },
+   {
+    "name": "Access Point0",
+    "type": "AccessPoint",
+    "model": "AccessPoint-PT-AC",
+    "x": 1020,
+    "y": 218
+   },
+   {
+    "name": "Access Point1",
+    "type": "AccessPoint",
+    "model": "AccessPoint-PT-AC",
+    "x": 994,
+    "y": 345
+   },
+   {
+    "name": "Laptop0",
+    "type": "Laptop",
+    "model": "Laptop-PT",
+    "x": 1230,
+    "y": 379,
+    "gw": "",
+    "dns": ""
+   },
+   {
+    "name": "Laptop1",
+    "type": "Laptop",
+    "model": "Laptop-PT",
+    "x": 1200,
+    "y": 253,
+    "gw": "",
+    "dns": ""
+   },
+   {
+    "name": "PC1",
+    "type": "Pc",
+    "model": "PC-PT",
+    "x": 968,
+    "y": 165,
+    "mac": "00E0.8FA3.A8C2",
+    "ip": "192.168.2.10",
+    "mask": "255.255.255.0",
+    "dhcp": false,
+    "v6auto": false,
+    "gw": "192.168.2.1",
+    "dns": ""
+   }
+  ],
+  "links": [
+   [
+    "Switch0",
+    "FastEthernet0/1",
+    "Router0",
+    "GigabitEthernet0/0",
+    "straight"
+   ],
+   [
+    "Router0",
+    "GigabitEthernet0/1",
+    "Switch1",
+    "FastEthernet0/1",
+    "straight"
+   ],
+   [
+    "Switch1",
+    "FastEthernet0/2",
+    "Access Point1",
+    "Port 0",
+    "straight"
+   ],
+   [
+    "Switch1",
+    "FastEthernet0/3",
+    "Access Point0",
+    "Port 0",
+    "straight"
+   ],
+   [
+    "Server0",
+    "FastEthernet0",
+    "Switch0",
+    "FastEthernet0/2",
+    "straight"
+   ],
+   [
+    "PC0",
+    "FastEthernet0",
+    "Switch0",
+    "FastEthernet0/3",
+    "straight"
+   ],
+   [
+    "Switch1",
+    "FastEthernet0/4",
+    "PC1",
+    "FastEthernet0",
+    "straight"
+   ]
+  ],
+  "notes": [
+   {
+    "x": 173,
+    "y": 166,
+    "text": "ZONE : 192.168.1.0/24"
+   },
+   {
+    "x": 739,
+    "y": 134,
+    "text": "ZONE : 192.168.2.0/24"
+   }
+  ],
+  "shapes": [
+   {
+    "k": "rect",
+    "x1": 120,
+    "y1": 121,
+    "x2": 634,
+    "y2": 448,
+    "rgb": [
+     0,
+     0,
+     255
+    ],
+    "fill": false,
+    "line": "#000000"
+   },
+   {
+    "k": "rect",
+    "x1": 660,
+    "y1": 118,
+    "x2": 1296,
+    "y2": 453,
+    "rgb": [
+     0,
+     255,
+     0
+    ],
+    "fill": false,
+    "line": "#000000"
+   }
+  ],
+  "file": "DHCP.pkt"
  }
 };

@@ -23,6 +23,11 @@ FICHIERS = {
     'CORR-TP1': 'CORR-TP1.pkt',
     'TP-TAP': 'TP-TAP.pkt',
     'SDN-LAB1': 'SDN_Version_LAB_1.pkt',
+    # suite des cours (octobre)
+    'TP-ARCHI': os.path.join('suite des cours et TP', 'CV-9-10-2026', 'TP1.pkt'),
+    'RIP-Depart': os.path.join('suite des cours et TP', 'CV-23-10-2026', 'ROUTAGE-RIP-Depart.pkt'),
+    'OSPF1-Depart': os.path.join('suite des cours et TP', 'OSPF', 'OSPF1-Depart.pkt'),
+    'TP-DHCP': os.path.join('suite des cours et TP', 'Protocoles de la couche application', 'DHCP.pkt'),
 }
 
 HOSTS = ('Pc', 'Server', 'Laptop', 'Printer', 'NetworkController', 'TabletPC', 'Pda')
@@ -165,6 +170,7 @@ def extract(xml):
             b = order[int(fb)]
         ctype = t(c, 'TYPE') or t(l, 'TYPE')
         cable = {'eStraightThrough': 'straight', 'eCrossOver': 'cross', 'eFiber': 'fiber',
+                 'eMultiMode': 'fiber', 'eSingleMode': 'fiber',
                  'eSerial': 'serial', 'eConsole': 'console', 'eSmartSerial': 'serial'}.get(ctype, ctype)
         if a and b:
             links.append([a, ports[0], b, ports[1], cable])
@@ -199,7 +205,7 @@ def main():
             print('absent :', fn)
             continue
         out[key] = extract(decode_pkt(open(path, 'rb').read()))
-        out[key]['file'] = fn
+        out[key]['file'] = os.path.basename(fn)
         print('ok', key, len(out[key]['devices']), 'équipements', len(out[key]['links']), 'câbles')
     with open(dst, 'w', encoding='utf-8') as f:
         f.write('/* Généré par outils/pkt_vers_js.py à partir des fichiers Packet Tracer du cours. */\n')
