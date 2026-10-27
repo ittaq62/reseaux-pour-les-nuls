@@ -128,7 +128,42 @@ Router#show ip dhcp binding                              ← qui a reçu quoi</d
         { dev: 'Router-INTERVLAN', cli: ['conf t', 'interface g0/0/0.10', 'ip helper-address 192.168.20.100', 'end'] },
         { dhcp: true, dev: 'B01' }, { dhcp: true, dev: 'B11' }
       ],
-      explain: 'C’est exactement le corrigé CORR-TP1 du prof : pools serverPool (ADM), DEV et COM sur le serveur, <code>ip helper-address 192.168.20.100</code> sur les sous-interfaces .10 et .30. B01 reçoit 192.168.20.200 directement (même réseau que le serveur) ; B11 reçoit 192.168.10.200 grâce au relais.' }
+      explain: 'C’est exactement le corrigé CORR-TP1 du prof : pools serverPool (ADM), DEV et COM sur le serveur, <code>ip helper-address 192.168.20.100</code> sur les sous-interfaces .10 et .30. B01 reçoit 192.168.20.200 directement (même réseau que le serveur) ; B11 reçoit 192.168.10.200 grâce au relais.' },
+    { id: 'd-lab-tp', lvl: 3, type: 'pt', file: 'DHCP.pkt', tag: 'DHCP sur deux zones',
+      q: '<b>TP DHCP.pkt (dossier « Protocoles de la couche application »).</b> Un routeur, deux zones : <b>zone 1</b> 192.168.1.0/24 (Router0 G0/0 = .1, <b>Server0</b> = 192.168.1.10, PC0 = .100) et <b>zone 2</b> 192.168.2.0/24 (G0/1 = .1, PC1 = .10, deux portables). Server0 doit distribuer les adresses <b>des deux zones</b>, sans jamais donner une adresse déjà prise (routeur, serveur, PC1).<br>1. Configure et active le DHCP de Server0 (un pool par zone).<br>2. Fais en sorte que les portables de la zone 2 l’obtiennent aussi.<br>3. Passe PC0 en DHCP pour vérifier la zone 1.<br><i>Dans le .pkt, les portables sont en Wi-Fi derrière deux bornes ; le simulateur de l’appli ne gère pas le Wi-Fi, ils sont donc câblés sur Switch1. Pour DHCP ça ne change rien : une borne est un simple pont de couche 2.</i>',
+      build: function () {
+        var n = LAB.make({
+          devices: [['Router0', '2901', 520, 90], ['Switch0', '2960-24TT', 260, 260], ['Switch1', '2960-24TT', 780, 260], ['Server0', 'Server-PT', 120, 420], ['PC0', 'PC-PT', 360, 420], ['PC1', 'PC-PT', 640, 420], ['Laptop0', 'Laptop-PT', 820, 420], ['Laptop1', 'Laptop-PT', 1000, 420]],
+          links: [['Switch0', 'FastEthernet0/1', 'Router0', 'GigabitEthernet0/0', 'straight'], ['Router0', 'GigabitEthernet0/1', 'Switch1', 'FastEthernet0/1', 'straight'],
+            ['Server0', 'FastEthernet0', 'Switch0', 'FastEthernet0/2', 'straight'], ['PC0', 'FastEthernet0', 'Switch0', 'FastEthernet0/3', 'straight'],
+            ['Switch1', 'FastEthernet0/4', 'PC1', 'FastEthernet0', 'straight'], ['Switch1', 'FastEthernet0/3', 'Laptop0', 'FastEthernet0', 'straight'], ['Switch1', 'FastEthernet0/2', 'Laptop1', 'FastEthernet0', 'straight']],
+          notes: [[140, 540, 'ZONE : 192.168.1.0/24'], [700, 540, 'ZONE : 192.168.2.0/24']],
+          cli: { Router0: ['conf t', 'interface g0/0', 'ip address 192.168.1.1 255.255.255.0', 'no shutdown', 'interface g0/1', 'ip address 192.168.2.1 255.255.255.0', 'no shutdown', 'end'] },
+          hosts: { Server0: { ip: '192.168.1.10', mask: '255.255.255.0', gw: '192.168.1.1' }, PC0: { ip: '192.168.1.100', mask: '255.255.255.0', gw: '192.168.1.1' }, PC1: { ip: '192.168.2.10', mask: '255.255.255.0', gw: '192.168.2.1' } }
+        });
+        n.dev('Server0').services.dhcp = { on: false, pools: [{ name: 'serverPool', network: '192.168.1.0', mask: '255.255.255.0', gateway: '0.0.0.0', dns: '0.0.0.0', start: '192.168.1.0', end: '192.168.1.255', max: 256 }] };
+        ['Laptop0', 'Laptop1'].forEach(function (p) { LAB.host(n, p, { dhcp: true }); });
+        n.events = []; n.touch(); return n;
+      },
+      tasks: [
+        { label: 'Le service DHCP de Server0 est activé', check: function (n) { return n.dev('Server0').services.dhcp.on; } },
+        { label: 'Relais DHCP vers 192.168.1.10 sur G0/1 de Router0', check: function (n) { var i = n.iface(n.dev('Router0'), 'GigabitEthernet0/1'); return !!i && i.helper.indexOf(NET.ip2int('192.168.1.10')) >= 0; } },
+        { label: 'Laptop0 et Laptop1 obtiennent une adresse libre de 192.168.2.0/24, passerelle 192.168.2.1', check: function (n) {
+          var ips = ['Laptop0', 'Laptop1'].map(function (p) { return LAB.dhcpGets(n, p, '192.168.2.0/24', '192.168.2.1') ? n.dev(p).host.ip : null; });
+          return ips.every(function (x) { return x != null && x !== NET.ip2int('192.168.2.1') && x !== NET.ip2int('192.168.2.10'); }) && ips[0] !== ips[1]; } },
+        { label: 'PC0, passé en DHCP, obtient une adresse libre de 192.168.1.0/24, passerelle 192.168.1.1', check: function (n) { return LAB.dhcpGets(n, 'PC0', '192.168.1.0/24', '192.168.1.1') && [NET.ip2int('192.168.1.1'), NET.ip2int('192.168.1.10')].indexOf(n.dev('PC0').host.ip) < 0; } },
+        { label: 'Laptop0 joint Server0', check: function (n) { return n.canPing('Laptop0', 'Server0'); } }
+      ],
+      hints: ['Server0 → Services → DHCP : serverPool pour la zone 1 (passerelle 192.168.1.1, début par exemple 192.168.1.20 : surtout pas une plage qui contient .1 ou .10), puis un 2e pool pour 192.168.2.0 (passerelle 192.168.2.1, début 192.168.2.20). Service <b>On</b>.', 'Les portables envoient leur DISCOVER en diffusion : Router0 ne le transmet pas tout seul vers la zone 1. Sur Router0 : <code>interface g0/1</code> puis <code>ip helper-address 192.168.1.10</code>.', 'PC0 : Desktop → IP Configuration → DHCP. Les portables : idem pour relancer la demande.'],
+      solution: [
+        { text: 'Server0 → Services → DHCP : Service On ; serverPool (passerelle 192.168.1.1, début 192.168.1.20, 50 utilisateurs) et pool ZONE2 (réseau 192.168.2.0/24, passerelle 192.168.2.1, début 192.168.2.20, 50 utilisateurs).',
+          fn: function (n) { n.dev('Server0').services.dhcp = { on: true, pools: [
+            { name: 'serverPool', network: '192.168.1.0', mask: '255.255.255.0', gateway: '192.168.1.1', dns: '0.0.0.0', start: '192.168.1.20', end: '192.168.1.69', max: 50 },
+            { name: 'ZONE2', network: '192.168.2.0', mask: '255.255.255.0', gateway: '192.168.2.1', dns: '0.0.0.0', start: '192.168.2.20', end: '192.168.2.69', max: 50 }] }; } },
+        { dev: 'Router0', cli: ['conf t', 'interface g0/1', 'ip helper-address 192.168.1.10', 'end'] },
+        { dhcp: true, dev: 'PC0' }, { dhcp: true, dev: 'Laptop0' }, { dhcp: true, dev: 'Laptop1' }
+      ],
+      explain: 'Zone 1 : le serveur est dans le même réseau, le DISCOVER (diffusion) lui parvient directement. Zone 2 : la diffusion s’arrête au routeur, il faut le <b>relais</b> (<code>ip helper-address</code>), qui renvoie la demande en unicast au serveur en indiquant le réseau d’origine (192.168.2.1) : c’est comme ça que Server0 choisit le bon pool. Et un pool qui commencerait à .1 ou contiendrait .10 distribuerait l’adresse du routeur ou du serveur : conflit garanti.' }
   ]
   });
 })();
