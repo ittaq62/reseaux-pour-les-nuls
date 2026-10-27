@@ -876,7 +876,9 @@
     routers.forEach(function (d) {
       if (!d.cfg.rip) return;
       var tbl = {};
-      ripIfs(d).forEach(function (i) { tbl[N.netOf(i.ip, i.len) + '/' + i.len] = { net: N.netOf(i.ip, i.len), len: i.len, metric: 0, iface: i.name, nh: null, conn: true }; });
+      ripIfs(d).forEach(function (i) { tbl[N.netOf(i.ip, i.len) + '/' + i.len] = { net: N.netOf(i.ip, i.len), len: i.len, metric: 0, paths: [{ iface: i.name, nh: null }], conn: true }; });
+      /* default-information originate : la route par défaut est annoncée comme un réseau connecté */
+      if (d.cfg.rip.defOrig && !tbl['0/0']) tbl['0/0'] = { net: 0, len: 0, metric: 0, paths: [], conn: true };
       rip[d.name] = tbl;
     });
     /* voisinages RIP */
@@ -903,16 +905,21 @@
         var sumAuto = nb.o.cfg.rip.version !== 2 || nb.o.cfg.rip.autoSummary;
         Object.keys(theirs).forEach(function (k) {
           var r = theirs[k];
-          if (r.iface === nb.oi.name && !r.conn) return; /* split horizon */
+          /* split horizon : pas d'annonce d'une route apprise par l'interface qui fait face au voisin */
+          if (!r.conn && r.paths.some(function (p) { return p.iface === nb.oi.name; })) return;
           var net = r.net, len = r.len;
-          if (sumAuto && N.classOf(net) !== 'D' && !N.sameNet(net, nb.oi.ip, N.classfulLen(nb.oi.ip))) { len = N.classfulLen(net); net = N.netOf(net, len); }
+          if (len > 0 && sumAuto && N.classOf(net) !== 'D' && !N.sameNet(net, nb.oi.ip, N.classfulLen(nb.oi.ip))) { len = N.classfulLen(net); net = N.netOf(net, len); }
           var m = r.metric + 1;
           if (m > 15) return;
           var kk = net + '/' + len;
-          var cur = mine[kk];
-          if (!cur || (!cur.conn && m < cur.metric)) {
-            if (cur && cur.conn) return;
-            mine[kk] = { net: net, len: len, metric: m, iface: nb.mi.name, nh: nb.oi.ip, conn: false };
+          var cur = mine[kk], path = { iface: nb.mi.name, nh: nb.oi.ip };
+          if (cur && cur.conn) return;
+          if (!cur || m < cur.metric) {
+            mine[kk] = { net: net, len: len, metric: m, paths: [path], conn: false };
+            changed = true;
+          } else if (m === cur.metric && cur.paths.length < 4 && !cur.paths.some(function (p) { return p.nh === path.nh && p.iface === path.iface; })) {
+            /* chemins de même coût (maximum-paths 4) */
+            cur.paths.push(path);
             changed = true;
           }
         });
@@ -923,61 +930,137 @@
       out[n] = out[n] || [];
       Object.keys(rip[n]).forEach(function (k) {
         var r = rip[n][k];
-        if (!r.conn) out[n].push({ code: 'R', net: r.net, len: r.len, nh: r.nh, iface: r.iface, ad: 120, metric: r.metric });
+        if (r.conn) return;
+        r.paths.forEach(function (p) { out[n].push({ code: r.len === 0 ? 'R*' : 'R', net: r.net, len: r.len, nh: p.nh, iface: p.iface, ad: 120, metric: r.metric }); });
       });
     });
     /* ---- OSPF ---- */
-    function ospfIfs(d) {
-      var pids = Object.keys(d.cfg.ospf);
-      if (!pids.length) return [];
-      return d.ifaces.filter(function (i) {
-        if (i.ip == null || !self.l3Up(d, i)) return false;
-        return pids.some(function (p) {
-          return d.cfg.ospf[p].networks.some(function (n) { return ((i.ip & ~n.wild) >>> 0) === ((n.addr & ~n.wild) >>> 0); });
-        });
-      });
-    }
-    function cost(i) { var s = speedOf(i.name); return Math.max(1, Math.floor(100 / s)); }
-    var ospfR = routers.filter(function (d) { return ospfIfs(d).length; });
-    var links = [];
-    ospfR.forEach(function (d) {
-      ospfIfs(d).forEach(function (i) {
-        self.l2Domain(d, i).endpoints.forEach(function (e) {
-          if (e.dev === d || ospfR.indexOf(e.dev) < 0 || ospfIfs(e.dev).indexOf(e.ifc) < 0) return;
-          if (!N.sameNet(e.ifc.ip, i.ip, i.len)) return;
-          links.push({ me: d, mi: i, o: e.dev, oi: e.ifc, c: cost(i) });
-        });
-      });
-    });
-    ospfR.forEach(function (src) {
-      var dist = {}, first = {};
-      ospfR.forEach(function (d) { dist[d.name] = Infinity; });
+    var od = this.ospfData();
+    od.routers.forEach(function (src) {
+      /* Dijkstra (coûts > 0) en gardant tous les premiers sauts de même coût (ECMP, 4 au plus) */
+      var dist = {}, hops = {}, done = {};
+      od.routers.forEach(function (d) { dist[d.name] = Infinity; hops[d.name] = []; });
       dist[src.name] = 0;
-      for (var k = 0; k < ospfR.length + 1; k++) {
-        links.forEach(function (l) {
-          if (dist[l.me.name] === Infinity) return;
-          var nd = dist[l.me.name] + l.c;
-          if (nd < dist[l.o.name]) {
-            dist[l.o.name] = nd;
-            first[l.o.name] = l.me === src ? { iface: l.mi.name, nh: l.oi.ip } : first[l.me.name];
-          }
+      for (;;) {
+        var u = null;
+        od.routers.forEach(function (d) { if (!done[d.name] && dist[d.name] < Infinity && (!u || dist[d.name] < dist[u.name])) u = d; });
+        if (!u) break;
+        done[u.name] = true;
+        od.adj.forEach(function (l) {
+          if (l.me !== u) return;
+          var nd = dist[u.name] + l.c, v = l.o.name;
+          var via = u === src ? [{ iface: l.mi.name, nh: l.oi.ip }] : hops[u.name];
+          if (nd < dist[v]) { dist[v] = nd; hops[v] = via.slice(0, 4); }
+          else if (nd === dist[v]) via.forEach(function (h) { if (hops[v].length < 4 && !hops[v].some(function (x) { return x.iface === h.iface && x.nh === h.nh; })) hops[v].push(h); });
         });
       }
       var myNets = {};
-      ospfIfs(src).forEach(function (i) { myNets[N.netOf(i.ip, i.len) + '/' + i.len] = 1; });
+      od.ifs[src.name].forEach(function (o) { myNets[o.net + '/' + o.len] = 1; });
       var best = {};
-      ospfR.forEach(function (d) {
-        if (d === src || dist[d.name] === Infinity || !first[d.name]) return;
-        ospfIfs(d).forEach(function (i) {
-          var net = N.netOf(i.ip, i.len), kk = net + '/' + i.len;
+      function offer(kk, base, d, m) {
+        if (!hops[d.name].length) return;
+        if (!best[kk] || m < best[kk].metric) best[kk] = { base: base, metric: m, hops: hops[d.name].slice() };
+        else if (m === best[kk].metric) hops[d.name].forEach(function (h) { if (best[kk].hops.length < 4 && !best[kk].hops.some(function (x) { return x.iface === h.iface && x.nh === h.nh; })) best[kk].hops.push(h); });
+      }
+      od.routers.forEach(function (d) {
+        if (d === src || dist[d.name] === Infinity) return;
+        od.ifs[d.name].forEach(function (o) {
+          var kk = o.net + '/' + o.len;
           if (myNets[kk]) return;
-          var m = dist[d.name] + cost(i);
-          if (!best[kk] || m < best[kk].metric) best[kk] = { code: 'O', net: net, len: i.len, nh: first[d.name].nh, iface: first[d.name].iface, ad: 110, metric: m };
+          offer(kk, { code: 'O', net: o.net, len: o.len, ad: 110 }, d, dist[d.name] + o.cost);
         });
+        /* default-information originate : route externe de type 2, métrique 1 */
+        if (od.defOrig[d.name]) offer('0/0', { code: 'O*E2', net: 0, len: 0, ad: 110 }, d, 1);
       });
-      out[src.name] = (out[src.name] || []).concat(Object.keys(best).map(function (k) { return best[k]; }));
+      var routes = [];
+      Object.keys(best).forEach(function (k) {
+        var b = best[k];
+        b.hops.forEach(function (h) { routes.push({ code: b.base.code, net: b.base.net, len: b.base.len, ad: 110, metric: b.metric, nh: h.nh, iface: h.iface }); });
+      });
+      out[src.name] = (out[src.name] || []).concat(routes);
     });
     return out;
+  };
+
+  /* OSPF : interfaces, adjacences, élection DR/BDR (topologie figée : pas d'historique d'élection) */
+  P.ospfRid = function (d) {
+    var pids = Object.keys(d.cfg.ospf), self = this;
+    for (var k = 0; k < pids.length; k++) if (d.cfg.ospf[pids[k]].rid != null) return d.cfg.ospf[pids[k]].rid;
+    var lo = d.ifaces.filter(function (i) { return /^Loopback/.test(i.name) && i.ip != null && self.l3Up(d, i); }).map(function (i) { return i.ip; });
+    if (lo.length) return Math.max.apply(null, lo);
+    var all = d.ifaces.filter(function (i) { return i.ip != null && self.l3Up(d, i); }).map(function (i) { return i.ip; });
+    return all.length ? Math.max.apply(null, all) : null;
+  };
+  P.ospfCost = function (d, i) {
+    if (i.ospfCost) return i.ospfCost;
+    var pid = Object.keys(d.cfg.ospf)[0];
+    var ref = (pid && d.cfg.ospf[pid].refBw) || 100;      /* Mbit/s */
+    var bw = i.bw || speedOf(i.name) * 1000;               /* kbit/s */
+    if (/^Loopback/.test(i.name)) return 1;
+    return Math.max(1, Math.floor(ref * 1000 / bw));
+  };
+  P.ospfData = function () {
+    this._cache = this._cache || {};
+    if (this._cache.ospf) return this._cache.ospf;
+    var self = this;
+    var res = { routers: [], ifs: {}, adj: [], nbrs: {}, role: {}, defOrig: {} };
+    this._cache.ospf = res;
+    this.devices.forEach(function (d) {
+      if (!d.power || !(d.cat === 'router' || (d.cat === 'l3switch' && d.cfg.ipRouting))) return;
+      var pids = Object.keys(d.cfg.ospf);
+      if (!pids.length) return;
+      var list = [];
+      d.ifaces.forEach(function (i) {
+        if (i.ip == null || !self.l3Up(d, i)) return;
+        for (var p = 0; p < pids.length; p++) {
+          var o = d.cfg.ospf[pids[p]];
+          var n = o.networks.filter(function (x) { return ((i.ip & ~x.wild) >>> 0) === ((x.addr & ~x.wild) >>> 0); })[0];
+          if (!n) continue;
+          var lo = /^Loopback/.test(i.name);
+          list.push({ ifc: i, pid: +pids[p], area: n.area, passive: o.passive.indexOf(i.name) >= 0, cost: self.ospfCost(d, i),
+            net: lo ? i.ip : N.netOf(i.ip, i.len), len: lo ? 32 : i.len, p2p: /^Serial/.test(i.name), loop: lo, prio: i.ospfPrio == null ? 1 : i.ospfPrio });
+          return;
+        }
+      });
+      if (!list.length) return;
+      res.routers.push(d);
+      res.ifs[d.name] = list;
+      res.nbrs[d.name] = [];
+      var orig = pids.some(function (p) { return d.cfg.ospf[p].defOrig; });
+      var always = pids.some(function (p) { return d.cfg.ospf[p].defOrig === 'always'; });
+      if (orig && (always || d.cfg.routes.some(function (r) { return r.len === 0; }))) res.defOrig[d.name] = true;
+    });
+    function entry(d, i) { return (res.ifs[d.name] || []).filter(function (o) { return o.ifc === i; })[0]; }
+    /* voisins : même domaine de niveau 2, même sous-réseau et même masque, même zone, interfaces non passives */
+    var segs = {};
+    res.routers.forEach(function (d) {
+      res.ifs[d.name].forEach(function (o) {
+        if (o.passive || o.loop) return;
+        var i = o.ifc;
+        self.l2Domain(d, i).endpoints.forEach(function (e) {
+          if (e.dev === d) return;
+          var eo = entry(e.dev, e.ifc);
+          if (!eo || eo.passive || eo.loop || eo.area !== o.area || !N.sameNet(e.ifc.ip, i.ip, i.len)) return;
+          if (!o.p2p && e.ifc.len !== i.len) return; /* masque différent sur un réseau multi-accès : pas d'adjacence */
+          res.adj.push({ me: d, mi: i, o: e.dev, oi: e.ifc, c: o.cost });
+          res.nbrs[d.name].push({ me: o, dev: e.dev, ifc: e.ifc, eo: eo });
+          var key = N.netOf(i.ip, i.len) + '/' + i.len;
+          (segs[key] = segs[key] || {})[d.name + '|' + i.name] = { dev: d, o: o };
+          segs[key][e.dev.name + '|' + e.ifc.name] = { dev: e.dev, o: eo };
+        });
+      });
+    });
+    /* élection DR/BDR sur les réseaux multi-accès : priorité la plus haute, puis Router ID le plus haut */
+    Object.keys(segs).forEach(function (k) {
+      var mem = Object.keys(segs[k]).map(function (x) { return segs[k][x]; });
+      if (mem[0].o.p2p) { mem.forEach(function (m) { res.role[m.dev.name + '|' + m.o.ifc.name] = 'P2P'; }); return; }
+      var cand = mem.filter(function (m) { return m.o.prio > 0; }).sort(function (a, b) { return (b.o.prio - a.o.prio) || ((self.ospfRid(b.dev) || 0) - (self.ospfRid(a.dev) || 0)); });
+      mem.forEach(function (m) {
+        var r = cand[0] === m ? 'DR' : cand[1] === m ? 'BDR' : 'DROTHER';
+        res.role[m.dev.name + '|' + m.o.ifc.name] = r;
+      });
+    });
+    return res;
   };
 
   /* ---------------------------------------------------------- */
