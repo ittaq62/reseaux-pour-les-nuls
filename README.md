@@ -1,7 +1,7 @@
 # Réseaux pour les nuls
 
 Application web locale pour réviser le module IMT « Architecture, modèles et protocoles des réseaux » :
-19 modules (cours + questions bloquantes), un Packet Tracer intégré (topologie, CLI Cisco, PC, serveurs,
+24 modules (cours + questions bloquantes), un Packet Tracer intégré (topologie, CLI Cisco, PC, serveurs,
 client et serveur de messagerie), des tableaux façon Excel (corrigés comme au DS), des niveaux de difficulté
 optionnels et une fiche de révision imprimable.
 
@@ -51,9 +51,11 @@ l’est dans tous les parcours où elle apparaît.
 |---|---|---|
 | 1-4 | Bases, OSI/TCP-IP, câbles, équipements | premier contact, ARP, câblage et câblage à dépanner, domaines de diffusion |
 | 5-7 | IPv4, sous-réseaux/VLSM, routage | adressage à dépanner, Situation 2, VLSM ; EX0-ROUTAGE, Lille/Lens/Arras (et sa version en panne), RIP |
-| 8-12 | VLAN, DHCP, DNS, Web, messagerie | TP1 (VLAN, router-on-a-stick, relais DHCP), trunk, inter-VLAN en panne, DHCP à distance, DNS (dont derrière un routeur), site web en panne, Email (dont relais entre deux domaines) |
-| 13-17 | NAT/PAT, IPv6, STP, HSRP, SDN | NAT-PAT (et en panne), IPv6/DHCPv6 (et en panne), TP-TAP, pont racine, HSRP (et mal réglé), switch en SSH ; client REST |
+| 8-12 | VLAN, DHCP, DNS, Web, messagerie | TP1 (VLAN, router-on-a-stick, relais DHCP), trunk, inter-VLAN en panne, DHCP à distance, DHCP sur deux zones (DHCP.pkt), DNS (dont derrière un routeur), site web en panne, Email (dont relais entre deux domaines) |
+| 13-17 | NAT/PAT, IPv6, STP, HSRP, SDN | NAT-PAT (et en panne), deux sites au même adressage (TP1 du 09/10), IPv6/DHCPv6 (et en panne), TP-TAP, pont racine, HSRP (et mal réglé), switch en SSH ; client REST |
 | 18-19 | Projet Datamax, examen blanc (DS avec barème) | missions 1 à 5, « lundi matin » (dépannage) ; Sujet 2 du DS en vrai |
+| 20-23 | IP et ICMP, TCP/UDP et performances, RIP (et RIPng), OSPF | étude ICMP ; RIP-Depart (RouterInactif), réseaux discontinus ; OSPF1-Depart, jeu sur les coûts, élection du DR |
+| 24 | Sujet d’évaluation 2025 et étude de cas Armatis-LC, corrigés | restructuration du site de Lille (VLAN + relais DHCP) |
 
 ## Développement
 
