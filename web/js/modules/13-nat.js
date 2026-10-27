@@ -5,6 +5,7 @@
       return s.proto === 'tcp' && s.local === NET.ip2int(lip) && s.lport === lport && s.gport === gport && n.natGlobalIP(n.dev('Router1'), s) === NET.ip2int('13.1.1.2');
     });
   }
+  function web(n, pc, url, srv) { var r = n.httpGet(n.dev(pc), url); return r.ok && r.server.name === srv; }
   window.MODULES = window.MODULES || [];
   window.MODULES.push({
   id: 'nat', num: 13, icon: '🎭', titre: 'NAT et PAT',
@@ -102,7 +103,27 @@ ip nat inside source static 192.168.1.50 13.1.1.50               ← NAT statiqu
         { dev: 'Router0', cli: ['conf t', 'interface g0/0/0', 'ip nat inside', 'interface g0/0/1', 'ip nat outside', 'exit', 'ip nat inside source list 1 interface g0/0/1 overload', 'end'] },
         { dev: 'Router1', cli: ['conf t', 'interface g0/0/0', 'ip nat outside', 'interface g0/0/1', 'ip nat inside', 'exit', 'ip nat inside source static tcp 192.168.2.10 80 13.1.1.2 80', 'ip nat inside source static tcp 192.168.2.11 80 13.1.1.2 8000', 'end'] }
       ],
-      explain: 'Après un ping ou une page web, <code>show ip nat translations</code> sur Router0 montre « 13.1.1.1:port ⟷ 192.168.1.x:port » (PAT), et sur Router1 les deux redirections statiques. Le navigateur de PC1 avec <code>http://13.1.1.2:8000</code> tombe bien sur WEB2.' }
+      explain: 'Après un ping ou une page web, <code>show ip nat translations</code> sur Router0 montre « 13.1.1.1:port ⟷ 192.168.1.x:port » (PAT), et sur Router1 les deux redirections statiques. Le navigateur de PC1 avec <code>http://13.1.1.2:8000</code> tombe bien sur WEB2.' },
+    { id: 'nt-lab-sites', lvl: 5, type: 'pt', topo: 'TP-ARCHI', file: 'TP1.pkt', tag: 'NAT entre deux sites',
+      q: '<b>TP du 09/10 (TP1.pkt) : deux sites au même adressage.</b> Les sociétés <b>DEV</b> et <b>DATAMOTION</b> utilisent <b>exactement le même plan</b> : réseau 192.168.1.0/24, routeur en .1, serveur web en .10, DNS en .11, postes en .100 et .101. Objectifs de l’énoncé :<br>• interconnecter les 2 sites <b>sans modifier le plan d’adressage</b> (les routeurs R-DEV et R-DM ne sont pas encore reliés) ;<br>• les postes de DEV ouvrent <b>http://www.datamotion.fr</b> (serveur DMWS) ;<br>• les postes de DATAMOTION ouvrent <b>http://www.dev.com</b> (serveur DEV-SERV) ;<br>• chaque administrateur ne configure que son routeur et ses serveurs WEB et DNS.',
+      tasks: [
+        { label: 'R-DEV G0/1 et R-DM G0/1 sont reliés par un câble adapté', check: function (n) { return LAB.linkedPorts(n, 'R-DEV', 'GigabitEthernet0/1', 'R-DM', 'GigabitEthernet0/1'); } },
+        { label: 'Le plan d’adressage des deux sites n’a pas changé', check: function (n) {
+          var ok = LAB.ifIp(n, 'R-DEV', 'GigabitEthernet0/0', '192.168.1.1', '255.255.255.0') && LAB.ifIp(n, 'R-DM', 'GigabitEthernet0/0', '192.168.1.1', '255.255.255.0');
+          return ok && [['DEV1', '192.168.1.100'], ['DEV2', '192.168.1.101'], ['DEV-SERV', '192.168.1.10'], ['D1', '192.168.1.100'], ['D2', '192.168.1.101'], ['DMWS', '192.168.1.10']].every(function (x) { return LAB.hostIs(n, x[0], x[1], '255.255.255.0'); }); } },
+        { label: 'DEV1 et DEV2 ouvrent http://www.datamotion.fr (page de DMWS)', check: function (n) { return web(n, 'DEV1', 'http://www.datamotion.fr', 'DMWS') && web(n, 'DEV2', 'http://www.datamotion.fr', 'DMWS'); } },
+        { label: 'D1 et D2 ouvrent http://www.dev.com (page de DEV-SERV)', check: function (n) { return web(n, 'D1', 'http://www.dev.com', 'DEV-SERV') && web(n, 'D2', 'http://www.dev.com', 'DEV-SERV'); } },
+        { label: 'Chaque site joint toujours son propre serveur', check: function (n) { return web(n, 'DEV1', 'http://www.dev.com', 'DEV-SERV') && web(n, 'D1', 'http://www.datamotion.fr', 'DMWS'); } }
+      ],
+      hints: ['Le problème : si D1 (192.168.1.100) arrive chez DEV-SERV avec sa vraie adresse, DEV-SERV répond… à DEV1, qui a la même ! Chaque site doit donc se présenter à l’autre <b>sous une autre adresse</b> : c’est le travail du NAT, dans les deux sens.', 'Relie G0/1 à G0/1 (câble croisé) et crée un petit réseau de transit, par exemple 10.0.0.0/30 (R-DEV = 10.0.0.1, R-DM = 10.0.0.2). Sur chaque routeur : G0/0 en <code>ip nat inside</code>, G0/1 en <code>ip nat outside</code>, <code>access-list 1 permit 192.168.1.0 0.0.0.255</code> et <code>ip nat inside source list 1 interface g0/1 overload</code> (PAT).', 'Publier le serveur web : <code>ip nat inside source static tcp 192.168.1.10 80 10.0.0.1 80</code> sur R-DEV (10.0.0.2 sur R-DM). Puis les DNS : sur DEV-DNS, un enregistrement A <b>www.datamotion.fr → 10.0.0.2</b> ; sur le DNS de DATAMOTION, <b>www.dev.com → 10.0.0.1</b>.'],
+      solution: [
+        { link: ['R-DEV', 'GigabitEthernet0/1', 'R-DM', 'GigabitEthernet0/1', 'cross'] },
+        { dev: 'R-DEV', cli: ['conf t', 'hostname R-DEV', 'interface g0/1', 'ip address 10.0.0.1 255.255.255.252', 'ip nat outside', 'no shutdown', 'interface g0/0', 'ip nat inside', 'exit', 'access-list 1 permit 192.168.1.0 0.0.0.255', 'ip nat inside source list 1 interface g0/1 overload', 'ip nat inside source static tcp 192.168.1.10 80 10.0.0.1 80', 'end'] },
+        { dev: 'R-DM', cli: ['conf t', 'hostname R-DM', 'interface g0/1', 'ip address 10.0.0.2 255.255.255.252', 'ip nat outside', 'no shutdown', 'interface g0/0', 'ip nat inside', 'exit', 'access-list 1 permit 192.168.1.0 0.0.0.255', 'ip nat inside source list 1 interface g0/1 overload', 'ip nat inside source static tcp 192.168.1.10 80 10.0.0.2 80', 'end'] },
+        { text: 'DEV-DNS → Services → DNS : ajouter www.datamotion.fr, type A, 10.0.0.2. DNS (DATAMOTION) → ajouter www.dev.com, type A, 10.0.0.1.',
+          fn: function (n) { n.dev('DEV-DNS').services.dns.records.push({ name: 'www.datamotion.fr', type: 'A', value: '10.0.0.2' }); n.dev('DNS').services.dns.records.push({ name: 'www.dev.com', type: 'A', value: '10.0.0.1' }); } }
+      ],
+      explain: 'Chaque site cache tout son réseau derrière l’adresse de transit de son routeur (<b>PAT</b>) et publie son serveur web par une <b>redirection de port</b> (NAT statique TCP 80). Vu de DEV-SERV, une requête de D1 vient de 10.0.0.2 : la réponse repart vers R-DM, qui la rend à D1. Sans NAT, impossible : deux machines 192.168.1.100 dans le « même » réseau. Le DNS de chaque site doit pointer le nom de l’autre vers l’adresse <b>publique</b> (de transit) de l’autre routeur. <code>show ip nat translations</code> sur R-DEV montre les deux sens.' }
   ]
   });
 })();
