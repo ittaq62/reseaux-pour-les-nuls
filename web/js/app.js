@@ -138,7 +138,7 @@
   /* ---------------------------------------------------------- */
   /* Barre latérale                                               */
   /* ---------------------------------------------------------- */
-  var SECTIONS = { 1: 'Les bases', 5: 'Adressage & routage', 8: 'LAN & services', 13: 'Aller plus loin', 18: 'Mise en pratique' };
+  var SECTIONS = { 1: 'Les bases', 5: 'Adressage & routage', 8: 'LAN & services', 13: 'Aller plus loin', 18: 'Mise en pratique', 20: 'Protocoles et routage dynamique', 24: 'Évaluation' };
   function renderSidebar(activeId) {
     var list = $('moduleList');
     list.innerHTML = '';
