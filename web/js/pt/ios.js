@@ -291,7 +291,8 @@
     if (p.k === 'b') { for (var i = 0; i < lines.length; i++) if (re.test(lines[i])) return lines.slice(i); return []; }
     if (p.k === 's') {
       var out = [], on = false;
-      lines.forEach(function (l) { if (/^\S/.test(l)) on = re.test(l); if (on) out.push(l); });
+      /* une ligne fille qui correspond s'affiche seule, sans sa section (comme IOS) */
+      lines.forEach(function (l) { if (/^\S/.test(l)) on = re.test(l); if (on || re.test(l)) out.push(l); });
       return out;
     }
     return lines;
@@ -563,6 +564,13 @@
   showDef('ip route connected', function (a, out) { showIpRoute(this.net, this.dev, 'C').forEach(function (l) { out.push(l); }); });
   showDef('ip route rip', function (a, out) { showIpRoute(this.net, this.dev, 'R').forEach(function (l) { out.push(l); }); });
   showDef('ip route ospf', function (a, out) { showIpRoute(this.net, this.dev, 'O').forEach(function (l) { out.push(l); }); });
+  showDef('ip ospf neighbor', function (a, out) { showOspfNeighbor(this.net, this.dev).forEach(function (l) { out.push(l); }); });
+  showDef('ip ospf interface brief', function (a, out) { showOspfIfBrief(this.net, this.dev).forEach(function (l) { out.push(l); }); });
+  showDef('ip ospf', function (a, out) { showOspf(this.net, this.dev).forEach(function (l) { out.push(l); }); });
+  showDef('ip rip database', function (a, out) { showRipDb(this.net, this.dev).forEach(function (l) { out.push(l); }); });
+  def('priv', 'debug ip rip', function (a, out) { out.push('RIP protocol debugging is on'); ripDebug(this.net, this.dev).forEach(function (l) { out.push(l); }); return 'noTouch'; });
+  def('priv', 'undebug all', function (a, out) { out.push('All possible debugging has been turned off'); return 'noTouch'; });
+  def('priv', 'no debug all', function (a, out) { out.push('All possible debugging has been turned off'); return 'noTouch'; });
   showDef('interfaces', function (a, out) { var s = this; s.dev.ifaces.forEach(function (i) { showInterface(s.net, s.dev, i).forEach(function (l) { out.push(l); }); }); });
   showDef('interfaces <IF>', function (a, out) {
     var i = this.net.iface(this.dev, a[a.length - 1]);
@@ -981,10 +989,23 @@
     var o = this.dev.cfg.ospf[this.ctx.pid];
     o.networks = o.networks.filter(function (n) { return !(n.addr === a[2] && n.wild === a[3]); });
   });
-  def('ospf', 'router-id <IP>', function (a) { this.dev.cfg.ospf[this.ctx.pid].rid = a[1]; });
-  def('ospf', 'passive-interface <IF>', function (a) { this.dev.cfg.ospf[this.ctx.pid].passive.push(a[1]); });
+  def('ospf', 'router-id <IP>', function (a, out) {
+    var o = this.dev.cfg.ospf[this.ctx.pid];
+    if (o.rid != null && o.rid !== a[1]) out.push('Reload or use "clear ip ospf process" command, for this to take effect');
+    o.rid = a[1];
+  });
+  def('ospf', 'no router-id', function () { this.dev.cfg.ospf[this.ctx.pid].rid = null; });
+  def('ospf', 'passive-interface <IF>', function (a) { var p = this.dev.cfg.ospf[this.ctx.pid].passive; if (p.indexOf(a[1]) < 0) p.push(a[1]); });
+  def('ospf', 'no passive-interface <IF>', function (a) { var o = this.dev.cfg.ospf[this.ctx.pid]; o.passive = o.passive.filter(function (x) { return x !== a[2]; }); });
+  def('ospf', 'auto-cost reference-bandwidth <1-4294967:The reference bandwidth in terms of Mbits per second>', function (a, out) {
+    this.dev.cfg.ospf[this.ctx.pid].refBw = a[2];
+    out.push('% OSPF: Reference bandwidth is changed.', '        Please ensure reference bandwidth is consistent across all routers.');
+  });
+  def('ospf', 'no auto-cost reference-bandwidth', function () { this.dev.cfg.ospf[this.ctx.pid].refBw = null; });
   def('ospf', 'log-adjacency-changes', function () {});
-  def('ospf', 'default-information originate', function () {});
+  def('ospf', 'default-information originate', function () { this.dev.cfg.ospf[this.ctx.pid].defOrig = true; });
+  def('ospf', 'default-information originate always', function () { this.dev.cfg.ospf[this.ctx.pid].defOrig = 'always'; });
+  def('ospf', 'no default-information originate', function () { this.dev.cfg.ospf[this.ctx.pid].defOrig = false; });
 
   /* VLAN (switch) */
   function vlanOk(s) { if (s.dev.cat !== 'switch' && s.dev.cat !== 'l3switch') { invalidAt(s, 'vlan'); return false; } return true; }
@@ -1090,7 +1111,11 @@
   def('if', 'ip nat outside', function () { eachIf(this, function (i) { i.natOut = true; i.natIn = false; }); });
   def('if', 'no ip nat inside', function () { eachIf(this, function (i) { i.natIn = false; }); });
   def('if', 'no ip nat outside', function () { eachIf(this, function (i) { i.natOut = false; }); });
-  def('if', 'ip ospf cost <1-65535>', function () {});
+  def('if', 'ip ospf cost <1-65535:Cost>', function (a) { eachIf(this, function (i) { i.ospfCost = a[3]; }); });
+  def('if', 'no ip ospf cost', function () { eachIf(this, function (i) { i.ospfCost = null; }); });
+  def('if', 'ip ospf priority <0-255:Priority>', function (a) { eachIf(this, function (i) { i.ospfPrio = a[3]; }); });
+  def('if', 'no ip ospf priority', function () { eachIf(this, function (i) { i.ospfPrio = null; }); });
+  def('if', 'no bandwidth', function () { eachIf(this, function (i) { i.bw = null; }); });
   /* HSRP */
   function sb(i, g) { i.standby[g] = i.standby[g] || { ip: null, prio: null, preempt: false }; return i.standby[g]; }
   def('if', 'standby ip <IP>', function (a) { eachIf(this, function (i) { sb(i, 0).ip = a[2]; }); });
@@ -1265,7 +1290,8 @@
     var style15 = (mi.ios || 15) >= 15;
     var t = net.routeTable(d).filter(function (r) { return style15 || r.code !== 'L'; });
     var out = [];
-    if (!filter) {
+    /* IOS 15 garde la légende même filtrée ; IOS 12 n'affiche que les routes */
+    if (!filter || style15) {
       if (style15) {
         out.push('Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP',
           '       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area',
@@ -1285,39 +1311,39 @@
       }
       var def0 = t.filter(function (r) { return r.len === 0; })[0];
       out.push(def0 ? 'Gateway of last resort is ' + (def0.nh != null ? ip(def0.nh) : '0.0.0.0') + ' to network 0.0.0.0' : 'Gateway of last resort is not set', '');
-    } else {
-      t = t.filter(function (r) { return r.code === filter || (filter === 'S' && r.code === 'S*') || (filter === 'C' && r.code === 'L'); });
+    }
+    var keep = function (r) { return !filter || r.code.replace('*', '').charAt(0) === filter || (filter === 'C' && r.code === 'L'); };
+    /* chemins de même coût : la 2e ligne ne répète pas le préfixe (comme IOS) */
+    function lines(rs, indent) {
+      var prev = null;
+      rs.forEach(function (r) {
+        var z = routeLine(r, d, style15);
+        if (prev && prev.net === r.net && prev.len === r.len && prev.code === r.code) out.push(new Array(indent + z.pfx.length + 1).join(' ') + z.tail);
+        else out.push(pad(z.code, indent) + z.pfx + z.tail);
+        prev = r;
+      });
     }
     /* regroupement par réseau "classful" */
-    var groups = [], byKey = {};
+    var groups = [], byKey = {}, defs = [];
     t.forEach(function (r) {
-      if (r.len === 0) { groups.push({ single: r }); return; }
+      if (r.len === 0) { if (!defs.length) groups.push({ defs: defs }); defs.push(r); return; }
       var cl = N.classfulLen(r.net), key = N.netOf(r.net, cl);
       if (!byKey[key]) { byKey[key] = { key: key, cl: cl, routes: [] }; groups.push(byKey[key]); }
       byKey[key].routes.push(r);
     });
     groups.forEach(function (g) {
-      if (g.single) {
-        var x = routeLine(g.single, d, style15);
-        out.push(pad(x.code, style15 ? 6 : 5) + x.pfx + x.tail);
-        return;
-      }
-      var rs = g.routes;
-      if (rs.length === 1 && rs[0].len === g.cl) {
-        var y = routeLine(rs[0], d, style15);
-        out.push(pad(y.code, style15 ? 6 : 5) + y.pfx + y.tail);
-        return;
-      }
-      var lens = {};
-      rs.forEach(function (r) { lens[r.len] = 1; });
-      var nl = Object.keys(lens).length;
-      var hdr = nl > 1 ? ip(g.key) + '/' + g.cl + ' is variably subnetted, ' + rs.length + ' subnets, ' + nl + ' masks'
-        : ip(g.key) + '/' + rs[0].len + ' is subnetted, ' + rs.length + ' subnet' + (rs.length > 1 ? 's' : '');
+      if (g.defs) { if (g.defs.some(keep)) lines(g.defs.filter(keep), style15 ? 6 : 5); return; }
+      /* l'en-tête décrit tout le réseau principal, même si le filtre n'en montre qu'une partie */
+      var all = g.routes, rs = all.filter(keep);
+      if (!rs.length) return;
+      var subnets = {}, lens = {};
+      all.forEach(function (r) { subnets[r.net + '/' + r.len] = 1; lens[r.len] = 1; });
+      var ns = Object.keys(subnets).length, nl = Object.keys(lens).length;
+      if (ns === 1 && all[0].len === g.cl) { lines(rs, style15 ? 6 : 5); return; }
+      var hdr = nl > 1 ? ip(g.key) + '/' + g.cl + ' is variably subnetted, ' + ns + ' subnets, ' + nl + ' masks'
+        : ip(g.key) + '/' + all[0].len + ' is subnetted, ' + ns + ' subnet' + (ns > 1 ? 's' : '');
       out.push((style15 ? '      ' : '     ') + hdr);
-      rs.forEach(function (r) {
-        var z = routeLine(r, d, style15);
-        out.push(pad(z.code, style15 ? 9 : 8) + z.pfx + z.tail);
-      });
+      lines(rs, style15 ? 9 : 8);
     });
     return out;
   }
@@ -1542,26 +1568,167 @@
   }
   function showProtocols(net, d) {
     var out = [];
+    function age() { return '00:00:' + ('0' + (Math.floor(Date.now() / 1000) % 30)).slice(-2); }
     if (d.cfg.rip) {
       var r = d.cfg.rip;
-      out.push('Routing Protocol is "rip"', 'Sending updates every 30 seconds, next due in 12 seconds', 'Invalid after 180 seconds, hold down 180, flushed after 240',
-        'Outgoing update filter list for all interfaces is not set', 'Incoming update filter list for all interfaces is not set', 'Redistributing: rip',
-        'Default version control: send version ' + (r.version || 1) + ', receive ' + (r.version ? 'version ' + r.version : 'any version'),
-        '  Interface             Send  Recv  Triggered RIP  Key-chain');
+      out.push('Routing Protocol is "rip"', '  Outgoing update filter list for all interfaces is not set', '  Incoming update filter list for all interfaces is not set',
+        '  Sending updates every 30 seconds, next due in ' + (30 - Math.floor(Date.now() / 1000) % 30) + ' seconds', '  Invalid after 180 seconds, hold down 180, flushed after 240',
+        '  Redistributing: rip',
+        '  Default version control: send version ' + (r.version || 1) + ', receive ' + (r.version ? 'version ' + r.version : 'any version'),
+        '    Interface             Send  Recv  Triggered RIP  Key-chain');
       d.ifaces.forEach(function (i) {
-        if (i.ip == null || !r.networks.some(function (n) { return N.sameNet(i.ip, n, N.classfulLen(n)); })) return;
-        out.push('  ' + pad(i.name, 22) + pad(r.version || 1, 6) + pad(r.version || '2 1', 6));
+        if (i.ip == null || !net.l3Up(d, i) || r.passive.indexOf(i.name) >= 0 || !r.networks.some(function (n) { return N.sameNet(i.ip, n, N.classfulLen(n)); })) return;
+        out.push('    ' + pad(i.name, 22) + pad(r.version || 1, 6) + pad(r.version ? String(r.version) : '1 2', 6));
       });
-      out.push('Automatic network summarization is ' + (r.autoSummary && r.version !== 1 ? 'in effect' : r.version === 1 || r.version == null ? 'in effect' : 'not in effect'), 'Maximum path: 4', 'Routing for Networks:');
-      r.networks.forEach(function (n) { out.push('\t' + ip(n)); });
-      if (r.passive.length) { out.push('Passive Interface(s):'); r.passive.forEach(function (p) { out.push('\t' + p); }); }
-      out.push('Routing Information Sources:', '\tGateway         Distance      Last Update', 'Distance: (default is 120)');
+      out.push('  Automatic network summarization is ' + (r.version === 2 && !r.autoSummary ? 'not in effect' : 'in effect'), '  Maximum path: 4', '  Routing for Networks:');
+      r.networks.forEach(function (n) { out.push('    ' + ip(n)); });
+      if (r.passive.length) { out.push('  Passive Interface(s):'); r.passive.forEach(function (p) { out.push('    ' + p); }); }
+      out.push('  Routing Information Sources:', '    Gateway         Distance      Last Update');
+      var gw = {};
+      net.routeTable(d).forEach(function (x) { if (x.code.charAt(0) === 'R' && x.nh != null) gw[x.nh] = 1; });
+      Object.keys(gw).forEach(function (g) { out.push('    ' + pad(ip(+g), 16) + pad('120', 14) + age()); });
+      out.push('  Distance: (default is 120)');
     }
     Object.keys(d.cfg.ospf).forEach(function (pid) {
-      out.push('', 'Routing Protocol is "ospf ' + pid + '"', 'Outgoing update filter list for all interfaces is not set', 'Incoming update filter list for all interfaces is not set',
-        'Router ID ' + ip(d.cfg.ospf[pid].rid || Math.max.apply(null, net.allIPs(d).concat([0]))), 'Number of areas in this router is 1. 1 normal 0 stub 0 nssa', 'Maximum path: 4', 'Routing for Networks:');
-      d.cfg.ospf[pid].networks.forEach(function (n) { out.push('    ' + ip(n.addr) + ' ' + ip(n.wild) + ' area ' + n.area); });
-      out.push('Distance: (default is 110)');
+      var o = d.cfg.ospf[pid], rid = net.ospfRid(d);
+      if (out.length) out.push('');
+      out.push('Routing Protocol is "ospf ' + pid + '"', '  Outgoing update filter list for all interfaces is not set', '  Incoming update filter list for all interfaces is not set',
+        '  Router ID ' + (rid != null ? ip(rid) : '0.0.0.0'), '  Number of areas in this router is 1. 1 normal 0 stub 0 nssa', '  Maximum path: 4', '  Routing for Networks:');
+      o.networks.forEach(function (n) { out.push('    ' + ip(n.addr) + ' ' + ip(n.wild) + ' area ' + n.area); });
+      if (o.passive.length) { out.push('  Passive Interface(s):'); o.passive.forEach(function (p) { out.push('    ' + p); }); }
+      out.push('  Routing Information Sources:', '    Gateway         Distance      Last Update');
+      var od = net.ospfData();
+      od.routers.forEach(function (x) { if (x !== d) { var xr = net.ospfRid(x); if (xr != null) out.push('    ' + pad(ip(xr), 16) + pad('110', 14) + age()); } });
+      out.push('  Distance: (default is 110)');
+    });
+    return out;
+  }
+  /* ---- OSPF : voisins, interfaces, processus ---- */
+  function lpad(s, n) { s = String(s); while (s.length < n) s = ' ' + s; return s; }
+  function ospfState(od, d, n) {
+    if (n.me.p2p) return 'FULL/  -';
+    var role = od.role[n.dev.name + '|' + n.ifc.name] || 'DROTHER', mine = od.role[d.name + '|' + n.me.ifc.name] || 'DROTHER';
+    return role === 'DR' || role === 'BDR' || mine === 'DR' || mine === 'BDR' ? 'FULL/' + role : '2WAY/DROTHER';
+  }
+  function showOspfNeighbor(net, d) {
+    if (!Object.keys(d.cfg.ospf).length) return [];
+    var od = net.ospfData(), list = od.nbrs[d.name] || [];
+    var out = ['', 'Neighbor ID     Pri   State           Dead Time   Address         Interface'];
+    list.forEach(function (n, k) {
+      var rid = net.ospfRid(n.dev);
+      out.push(pad(rid != null ? ip(rid) : '0.0.0.0', 16) + lpad(n.me.p2p ? 0 : n.eo.prio, 3) + '   ' + pad(ospfState(od, d, n), 16) + pad('00:00:3' + ((k + 3) % 10), 12) + pad(ip(n.ifc.ip), 16) + n.me.ifc.name);
+    });
+    return out;
+  }
+  function showOspfIfBrief(net, d) {
+    var od = net.ospfData(), list = od.ifs[d.name] || [];
+    if (!list.length) return [];
+    var out = ['Interface    PID   Area            IP Address/Mask    Cost  State Nbrs F/C'];
+    list.forEach(function (o) {
+      var nb = (od.nbrs[d.name] || []).filter(function (n) { return n.me === o; });
+      var full = nb.filter(function (n) { return ospfState(od, d, n).indexOf('FULL') === 0; }).length;
+      var st = o.loop ? 'LOOP' : o.p2p ? 'P2P' : (od.role[d.name + '|' + o.ifc.name] || 'DR');
+      out.push(pad(E.shortIf(o.ifc.name).replace(/^Gig/, 'Gi'), 13) + pad(o.pid, 6) + pad(o.area, 16) + pad(ip(o.ifc.ip) + '/' + o.ifc.len, 19) + pad(o.cost, 6) + pad(st, 6) + full + '/' + nb.length);
+    });
+    return out;
+  }
+  function showOspf(net, d) {
+    var out = [], od = net.ospfData();
+    Object.keys(d.cfg.ospf).forEach(function (pid) {
+      var o = d.cfg.ospf[pid], rid = net.ospfRid(d), ifs = (od.ifs[d.name] || []).filter(function (x) { return x.pid === +pid; });
+      var areas = {};
+      ifs.forEach(function (x) { areas[x.area] = (areas[x.area] || 0) + 1; });
+      var na = Object.keys(areas).length || 1;
+      out.push(' Routing Process "ospf ' + pid + '" with ID ' + (rid != null ? ip(rid) : '0.0.0.0'), ' Supports only single TOS(TOS0) routes', ' Supports opaque LSA',
+        ' SPF schedule delay 5 secs, Hold time between two SPFs 10 secs', ' Minimum LSA interval 5 secs. Minimum LSA arrival 1 secs',
+        ' Number of external LSA ' + (od.defOrig[d.name] ? 1 : 0) + '. Checksum Sum 0x000000', ' Number of opaque AS LSA 0. Checksum Sum 0x000000',
+        ' Number of DCbitless external and opaque AS LSA 0', ' Number of DoNotAge external and opaque AS LSA 0',
+        ' Number of areas in this router is ' + na + '. ' + na + ' normal 0 stub 0 nssa', ' External flood list length 0',
+        ' Reference bandwidth unit is ' + (o.refBw || 100) + ' mbps');
+      Object.keys(areas).forEach(function (a) {
+        out.push('    Area ' + (+a === 0 ? 'BACKBONE(0)' : a), '        Number of interfaces in this area is ' + areas[a], '        Area has no authentication', '        SPF algorithm executed 3 times');
+      });
+    });
+    return out;
+  }
+  /* ---- RIP : ce qu'un routeur annonce sur une interface (split horizon, résumé automatique) ---- */
+  function ripAdvert(net, dev, ifc) {
+    var r = dev.cfg.rip;
+    if (!r || ifc.ip == null) return [];
+    var ent = {};
+    function inRip(i) { return i && i.ip != null && r.networks.some(function (n) { return N.sameNet(i.ip, n, N.classfulLen(n)); }); }
+    function add(nt, len, m, iname) {
+      var k = nt + '/' + len;
+      if (!ent[k]) ent[k] = { net: nt, len: len, metric: m, ifs: [] };
+      ent[k].metric = Math.min(ent[k].metric, m);
+      if (iname) ent[k].ifs.push(iname);
+    }
+    net.routeTable(dev).forEach(function (x) {
+      if (x.code === 'C' && inRip(net.iface(dev, x.iface))) add(x.net, x.len, 0, x.iface);
+      else if (x.code.charAt(0) === 'R') add(x.net, x.len, x.metric, x.iface);
+    });
+    if (r.defOrig) add(0, 0, 0, null);
+    var sum = r.version !== 2 || r.autoSummary, res = {};
+    Object.keys(ent).forEach(function (k) {
+      var e = ent[k];
+      if (e.ifs.indexOf(ifc.name) >= 0) return; /* split horizon */
+      var nt = e.net, len = e.len;
+      if (len > 0 && sum && !N.sameNet(nt, ifc.ip, N.classfulLen(ifc.ip))) { len = N.classfulLen(nt); nt = N.netOf(nt, len); }
+      var m = e.metric + 1;
+      if (m > 15) return;
+      var kk = nt + '/' + len;
+      if (!res[kk] || m < res[kk].metric) res[kk] = { net: nt, len: len, metric: m };
+    });
+    return Object.keys(res).map(function (k) { return res[k]; }).sort(function (a, b) { return a.net - b.net || a.len - b.len; });
+  }
+  function ripIfsOf(net, dev) {
+    var r = dev.cfg.rip;
+    if (!r) return [];
+    return dev.ifaces.filter(function (i) { return i.ip != null && net.l3Up(dev, i) && r.networks.some(function (n) { return N.sameNet(i.ip, n, N.classfulLen(n)); }); });
+  }
+  function ripDebug(net, d) {
+    var r = d.cfg.rip, out = [];
+    if (!r) return out;
+    var v = r.version || 1, ts = '*Mar  1 01:06:';
+    function entLine(e, recv) {
+      if (v === 1) return '      network ' + ip(e.net) + (recv ? ' in ' + e.metric + ' hops' : ' metric ' + e.metric);
+      return '      ' + ip(e.net) + '/' + e.len + ' via 0.0.0.0' + (recv ? ' in ' + e.metric + ' hops' : ', metric ' + e.metric + ', tag 0');
+    }
+    ripIfsOf(net, d).forEach(function (i, k) {
+      if (r.passive.indexOf(i.name) >= 0) return;
+      var t = ts + ('0' + (34 + 6 * k) % 60).slice(-2) + '.743: ';
+      out.push(t + 'RIP: sending v' + v + ' update to ' + (v === 2 ? '224.0.0.9' : '255.255.255.255') + ' via ' + i.name + ' (' + ip(i.ip) + ')', t + 'RIP: build update entries');
+      ripAdvert(net, d, i).forEach(function (e) { out.push(entLine(e, false)); });
+      /* ce que reçoit le routeur sur cette interface */
+      net.l2Domain(d, i).endpoints.forEach(function (ep) {
+        var o = ep.dev, r2 = o.cfg && o.cfg.rip;
+        if (o === d || !r2 || ripIfsOf(net, o).indexOf(ep.ifc) < 0 || r2.passive.indexOf(ep.ifc.name) >= 0 || !N.sameNet(ep.ifc.ip, i.ip, i.len)) return;
+        var sv = r2.version || 1;
+        if (r.version && r.version !== sv) { out.push(t + 'RIP: ignored v' + sv + ' packet from ' + ip(ep.ifc.ip) + ' (illegal version)'); return; }
+        out.push(t + 'RIP: received v' + sv + ' update from ' + ip(ep.ifc.ip) + ' on ' + i.name);
+        ripAdvert(net, o, ep.ifc).forEach(function (e) { out.push(entLine(e, true)); });
+      });
+    });
+    return out;
+  }
+  function showRipDb(net, d) {
+    var r = d.cfg.rip, out = [];
+    if (!r) return out;
+    var sum = r.version !== 2 || r.autoSummary, rows = [];
+    ripIfsOf(net, d).forEach(function (i) { rows.push({ net: N.netOf(i.ip, i.len), len: i.len, conn: i.name }); });
+    net.routeTable(d).forEach(function (x) { if (x.code.charAt(0) === 'R') rows.push({ net: x.net, len: x.len, nh: x.nh, iface: x.iface, metric: x.metric }); });
+    rows.sort(function (a, b) { return a.net - b.net || a.len - b.len; });
+    var seenSum = {}, last = null;
+    rows.forEach(function (x) {
+      var pfx = ip(x.net) + '/' + x.len;
+      if (sum && x.len > 0) {
+        var cl = N.classfulLen(x.net), major = N.netOf(x.net, cl);
+        if (!seenSum[major]) { seenSum[major] = 1; out.push(pad(ip(major) + '/' + cl, 18) + 'auto-summary'); }
+      }
+      if (x.conn) { out.push(pad(pfx, 18) + 'directly connected, ' + x.conn); last = null; return; }
+      if (last !== pfx) out.push(pfx);
+      out.push('    [' + x.metric + '] via ' + ip(x.nh) + ', 00:00:' + ('0' + (Math.floor(Date.now() / 1000) % 30)).slice(-2) + ', ' + x.iface);
+      last = pfx;
     });
     return out;
   }
@@ -1645,6 +1812,7 @@
     d.ifaces.forEach(function (i) {
       L.push('interface ' + i.name);
       if (i.desc) L.push(' description ' + i.desc);
+      if (i.bw) L.push(' bandwidth ' + i.bw);
       if (i.encap) L.push(' encapsulation dot1Q ' + i.encap.vlan + (i.encap.native ? ' native' : ''));
       if (i.sw && !i.sw.routed) {
         if (i.sw.access !== 1) L.push(' switchport access vlan ' + i.sw.access);
@@ -1663,6 +1831,8 @@
         i.sec.forEach(function (s) { L.push(' ip address ' + ip(s.ip) + ' ' + mask(s.len) + ' secondary'); });
         if (i.ip == null && !i.parent && !(/^Vlan/.test(i.name) === false && d.cat !== 'router' && !(i.sw && i.sw.routed))) L.push(' no ip address');
         i.helper.forEach(function (h) { L.push(' ip helper-address ' + ip(h)); });
+        if (i.ospfCost) L.push(' ip ospf cost ' + i.ospfCost);
+        if (i.ospfPrio != null) L.push(' ip ospf priority ' + i.ospfPrio);
         if (i.natIn) L.push(' ip nat inside');
         if (i.natOut) L.push(' ip nat outside');
         Object.keys(i.standby).forEach(function (g) {
@@ -1699,7 +1869,10 @@
       L.push('router ospf ' + pid);
       if (o.rid != null) L.push(' router-id ' + ip(o.rid));
       L.push(' log-adjacency-changes');
+      if (o.refBw) L.push(' auto-cost reference-bandwidth ' + o.refBw);
+      o.passive.forEach(function (p) { L.push(' passive-interface ' + p); });
       o.networks.forEach(function (n) { L.push(' network ' + ip(n.addr) + ' ' + ip(n.wild) + ' area ' + n.area); });
+      if (o.defOrig) L.push(' default-information originate' + (o.defOrig === 'always' ? ' always' : ''));
       L.push('!');
     });
     Object.keys(c.natPools).forEach(function (n) { var p = c.natPools[n]; L.push('ip nat pool ' + n + ' ' + ip(p.start) + ' ' + ip(p.end) + ' netmask ' + mask(p.len)); });
